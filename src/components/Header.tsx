@@ -14,8 +14,10 @@ import {
   Redo2,
 } from 'lucide-react';
 import { ShortcutsModal } from './ShortcutsModal';
+import { ThemeToggle } from './ThemeToggle';
 import { useEditorStore } from '../store/editorStore';
 import { parseRTTM, serializeRTTM } from '../utils/rttmParser';
+import type { ThemeMode } from '../utils/themeStorage';
 
 function formatTime(seconds: number, includeMs = false): string {
   const mins = Math.floor(seconds / 60);
@@ -29,14 +31,16 @@ function formatTime(seconds: number, includeMs = false): string {
 }
 
 function Separator() {
-  return <div className="w-px h-6 bg-gray-200 mx-1" />;
+  return <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />;
 }
 
 interface HeaderProps {
   helpDefaultOpen?: boolean;
+  themeMode: ThemeMode;
+  onThemeModeChange: (mode: ThemeMode) => void;
 }
 
-export function Header({ helpDefaultOpen = false }: HeaderProps) {
+export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange }: HeaderProps) {
   const audioInputRef = useRef<HTMLInputElement>(null);
   const rttmInputRef = useRef<HTMLInputElement>(null);
   const [showHelp, setShowHelp] = useState(helpDefaultOpen);
@@ -114,7 +118,7 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
   const zoomProgress = ((pixelsPerSecond - 10) / 190) * 100;
 
   return (
-    <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
+    <header className="sticky top-0 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3 shadow-sm">
       <div className="flex items-center gap-4">
         {/* File Controls */}
         <div className="flex items-center gap-2">
@@ -144,9 +148,9 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
           />
           <button
             onClick={() => rttmInputRef.current?.click()}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md
-              hover:bg-gray-200 active:bg-gray-300 transition-colors
-              focus:outline-none focus:ring-2 focus:ring-gray-400/50 focus:ring-offset-1"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-md
+              hover:bg-gray-200 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-600 transition-colors
+              focus:outline-none focus:ring-2 focus:ring-gray-400/50 focus:ring-offset-1 dark:focus:ring-offset-gray-900"
           >
             <FileText size={16} />
             RTTM
@@ -173,39 +177,39 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
           <button
             onClick={undo}
             disabled={history.length === 0}
-            className="p-2 rounded-md hover:bg-gray-100 transition-colors
+            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors
               disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
             title="Undo (Ctrl+Z)"
           >
-            <Undo2 size={18} className="text-gray-600" />
+            <Undo2 size={18} className="text-gray-600 dark:text-gray-400" />
           </button>
           <button
             onClick={redo}
             disabled={future.length === 0}
-            className="p-2 rounded-md hover:bg-gray-100 transition-colors
+            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors
               disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
             title="Redo (Ctrl+Shift+Z)"
           >
-            <Redo2 size={18} className="text-gray-600" />
+            <Redo2 size={18} className="text-gray-600 dark:text-gray-400" />
           </button>
         </div>
 
         <Separator />
 
         {/* Transport Controls */}
-        <div className="flex items-center gap-1 bg-gray-50 rounded-lg px-2 py-1">
+        <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800 rounded-lg px-2 py-1">
           <button
             onClick={() => handleSkip(-5)}
-            className="p-2 rounded-md hover:bg-gray-200 transition-colors"
+            className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             title="Skip back 5s"
           >
-            <SkipBack size={20} className="text-gray-600" />
+            <SkipBack size={20} className="text-gray-600 dark:text-gray-400" />
           </button>
 
           <button
             onClick={handlePlayPause}
-            className="p-2 rounded-full bg-gray-900 text-white hover:bg-gray-700 active:bg-gray-800 transition-colors shadow-sm
-              focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-2"
+            className="p-2 rounded-full bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-300 active:bg-gray-800 dark:active:bg-gray-200 transition-colors shadow-sm
+              focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
             title={isPlaying ? 'Pause' : 'Play'}
           >
             {isPlaying ? <Pause size={20} /> : <Play size={20} />}
@@ -213,17 +217,17 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
 
           <button
             onClick={() => handleSkip(5)}
-            className="p-2 rounded-md hover:bg-gray-200 transition-colors"
+            className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             title="Skip forward 5s"
           >
-            <SkipForward size={20} className="text-gray-600" />
+            <SkipForward size={20} className="text-gray-600 dark:text-gray-400" />
           </button>
         </div>
 
         <Separator />
 
         {/* Time Display */}
-        <div className="text-sm font-mono text-gray-600 tabular-nums">
+        <div className="text-sm font-mono text-gray-600 dark:text-gray-300 tabular-nums">
           {formatTime(currentTime, true)} / {formatTime(duration)}
         </div>
 
@@ -231,13 +235,13 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
 
         {/* Playback Speed */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">Speed</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">Speed</span>
           <select
             value={playbackRate}
             onChange={(e) => handlePlaybackRateChange(Number(e.target.value))}
-            className="custom-dropdown text-sm bg-white border border-gray-200 rounded-md
+            className="custom-dropdown text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-md
               px-3 py-1.5 cursor-pointer shadow-sm
-              hover:border-gray-300 hover:bg-gray-50
+              hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700
               focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400
               transition-all duration-150"
           >
@@ -254,13 +258,13 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
 
         {/* Zoom Slider */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">Zoom</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">Zoom</span>
           <button
             onClick={() => setZoom(Math.max(10, pixelsPerSecond - 20))}
-            className="p-1 rounded hover:bg-gray-100 transition-colors"
+            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             title="Zoom out"
           >
-            <ZoomOut size={18} className="text-gray-500" />
+            <ZoomOut size={18} className="text-gray-500 dark:text-gray-400" />
           </button>
           <input
             type="range"
@@ -270,29 +274,32 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
             onChange={(e) => setZoom(Number(e.target.value))}
             className="w-28 custom-slider"
             style={{
-              background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${zoomProgress}%, #e5e7eb ${zoomProgress}%, #e5e7eb 100%)`,
+              background: `linear-gradient(to right, var(--slider-track-active) 0%, var(--slider-track-active) ${zoomProgress}%, var(--slider-track-bg) ${zoomProgress}%, var(--slider-track-bg) 100%)`,
               borderRadius: '2px',
             }}
           />
           <button
             onClick={() => setZoom(Math.min(200, pixelsPerSecond + 20))}
-            className="p-1 rounded hover:bg-gray-100 transition-colors"
+            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             title="Zoom in"
           >
-            <ZoomIn size={18} className="text-gray-500" />
+            <ZoomIn size={18} className="text-gray-500 dark:text-gray-400" />
           </button>
-          <span className="text-sm text-gray-500 w-14 text-right tabular-nums">
+          <span className="text-sm text-gray-500 dark:text-gray-400 w-14 text-right tabular-nums">
             {pixelsPerSecond}px/s
           </span>
         </div>
 
+        {/* Theme Toggle */}
+        <ThemeToggle mode={themeMode} onModeChange={onThemeModeChange} />
+
         {/* Help Button */}
         <button
           onClick={() => setShowHelp(true)}
-          className="p-2 rounded-md hover:bg-gray-100 transition-colors ml-2"
+          className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ml-2"
           title="Keyboard shortcuts"
         >
-          <HelpCircle size={20} className="text-gray-500" />
+          <HelpCircle size={20} className="text-gray-500 dark:text-gray-400" />
         </button>
       </div>
 

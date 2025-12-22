@@ -44,25 +44,25 @@ export function TimelineContainer() {
   const totalWidth = duration * pixelsPerSecond;
 
   return (
-    <div className="bg-white cursor-pointer" onClick={handleClick}>
+    <div className="bg-white dark:bg-gray-900 cursor-pointer" onClick={handleClick}>
       <TimeRuler />
       {speakers.map((speakerId, index) => (
         <SpeakerLane key={speakerId} speakerId={speakerId} index={index} />
       ))}
       {/* Add Speaker Button */}
       <div
-        className="flex items-center border-b border-gray-200"
+        className="flex items-center border-b border-gray-200 dark:border-gray-700"
         style={{ width: `${totalWidth + labelWidth}px` }}
       >
         <div
-          className="sticky left-0 z-10 flex items-center justify-center px-3 py-2 bg-white shrink-0"
+          className="sticky left-0 z-10 flex items-center justify-center px-3 py-2 bg-white dark:bg-gray-900 shrink-0"
           style={{ width: `${labelWidth}px` }}
         >
           <button
             onClick={handleAddSpeaker}
-            className="flex items-center gap-1.5 px-2 py-1 text-sm text-gray-500
-              border border-dashed border-gray-300 rounded-md
-              hover:border-gray-400 hover:text-gray-700 hover:bg-gray-50
+            className="flex items-center gap-1.5 px-2 py-1 text-sm text-gray-500 dark:text-gray-400
+              border border-dashed border-gray-300 dark:border-gray-600 rounded-md
+              hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800
               transition-colors duration-150"
             title="Add speaker"
           >

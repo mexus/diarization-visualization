@@ -2,12 +2,16 @@ import { useEffect, useState } from 'react';
 import { Header, EditorWorkspace } from './components';
 import { useEditorStore } from './store/editorStore';
 import { useStatePersistence } from './hooks/useStatePersistence';
+import { useTheme } from './hooks/useTheme';
 import { isFirstVisit, markVisited } from './utils/firstVisit';
 import './index.css';
 
 function App() {
   // Persist editor state to browser storage
   useStatePersistence();
+
+  // Theme management
+  const { mode: themeMode, setTheme } = useTheme();
 
   // Check first visit once and mark as visited
   const [showHelpOnStart] = useState(() => {
@@ -79,8 +83,8 @@ function App() {
   }, []);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
-      <Header helpDefaultOpen={showHelpOnStart} />
+    <div className="h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
+      <Header helpDefaultOpen={showHelpOnStart} themeMode={themeMode} onThemeModeChange={setTheme} />
       <EditorWorkspace />
     </div>
   );

@@ -193,15 +193,15 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
 
   return (
     <div
-      className={`flex items-center border-b border-gray-200 ${isEven ? 'bg-white' : 'bg-gray-50/50'}`}
+      className={`flex items-center border-b border-gray-200 dark:border-gray-700 ${isEven ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/50 dark:bg-gray-800/50'}`}
       style={{ width: `${totalWidth + labelWidth}px` }}
     >
       {/* Sticky label with left border accent and resize handle */}
       <div
         className={`sticky left-0 z-10 flex items-center gap-2 px-3 py-2 shrink-0 cursor-grab
-          hover:bg-gray-100/80 relative group transition-colors duration-150
-          ${isEven ? 'bg-white' : 'bg-gray-50/50'}
-          ${isDragOver ? 'bg-blue-100 ring-2 ring-blue-400 ring-inset' : ''}`}
+          hover:bg-gray-100/80 dark:hover:bg-gray-800/80 relative group transition-colors duration-150
+          ${isEven ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/50 dark:bg-gray-800/50'}
+          ${isDragOver ? 'bg-blue-100 dark:bg-blue-900/50 ring-2 ring-blue-400 ring-inset' : ''}`}
         style={{ width: `${labelWidth}px`, borderLeft: `3px solid ${color}` }}
         draggable={!isEditing}
         onClick={handleLabelClick}
@@ -223,11 +223,11 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
             autoComplete="off"
             autoCorrect="off"
             spellCheck={false}
-            className="w-full text-sm font-medium text-gray-700 bg-white border border-blue-500 rounded px-1 outline-none"
+            className="w-full text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-blue-500 rounded px-1 outline-none"
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
-          <span className="text-sm font-medium text-gray-700 truncate flex-1">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-200 truncate flex-1">
             {speakerId}
           </span>
         )}
@@ -235,7 +235,7 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
         {!hasSegments && isHovering && !isEditing && (
           <button
             onClick={handleRemoveSpeaker}
-            className="p-0.5 rounded hover:bg-red-100 text-gray-400 hover:text-red-500 transition-colors"
+            className="p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900/50 text-gray-400 hover:text-red-500 transition-colors"
             title="Remove speaker"
           >
             <X size={14} />
@@ -244,7 +244,7 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
         {/* Resize handle - thin and subtle */}
         <div
           className="absolute top-0 bottom-0 -right-px w-px cursor-col-resize
-            bg-gray-200 hover:bg-blue-400 hover:w-0.5 active:bg-blue-500
+            bg-gray-200 dark:bg-gray-700 hover:bg-blue-400 hover:w-0.5 active:bg-blue-500
             z-20 transition-all duration-150"
           onMouseDown={handleResizeStart}
           onClick={(e) => e.stopPropagation()}
@@ -256,7 +256,7 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
 
       {/* Segments container */}
       <div
-        className={`relative h-10 ${isRelabelTarget ? 'bg-blue-50' : ''}`}
+        className={`relative h-10 ${isRelabelTarget ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`}
         style={{ width: `${totalWidth}px` }}
         onMouseMove={handleMouseMove}
         onDoubleClick={handleDoubleClick}

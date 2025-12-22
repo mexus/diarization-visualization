@@ -40,14 +40,14 @@ export function EmptyState() {
   );
 
   return (
-    <div className="flex-1 flex items-center justify-center p-8 bg-gray-50">
+    <div className="flex-1 flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-800">
       <div
         className={`max-w-lg w-full rounded-xl border-2 border-dashed
           transition-all duration-200 ease-out
           ${
             isDragOver
-              ? 'border-blue-400 bg-blue-50 scale-[1.02]'
-              : 'border-gray-300 bg-white hover:border-gray-400'
+              ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/30 scale-[1.02]'
+              : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 hover:border-gray-400 dark:hover:border-gray-500'
           }`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -58,25 +58,25 @@ export function EmptyState() {
           <div
             className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4
             transition-colors duration-200
-            ${isDragOver ? 'bg-blue-100' : 'bg-gray-100'}`}
+            ${isDragOver ? 'bg-blue-100 dark:bg-blue-900/50' : 'bg-gray-100 dark:bg-gray-800'}`}
           >
             <Music className={`w-8 h-8 ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`} />
           </div>
 
           {/* Title */}
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
             Diarization Editor
           </h2>
 
           {/* Subtitle */}
-          <p className="text-gray-500 mb-6">
+          <p className="text-gray-500 dark:text-gray-400 mb-6">
             Visualize and edit speaker diarization with a DAW-style interface
           </p>
 
           {/* Drop zone hint */}
           <p
             className={`text-sm mb-6 transition-colors duration-200
-            ${isDragOver ? 'text-blue-600 font-medium' : 'text-gray-400'}`}
+            ${isDragOver ? 'text-blue-600 dark:text-blue-400 font-medium' : 'text-gray-400'}`}
           >
             {isDragOver ? 'Drop audio file here' : 'Drag and drop an audio file here, or'}
           </p>
@@ -104,22 +104,22 @@ export function EmptyState() {
           </div>
 
           {/* Quick tips */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <h3 className="text-sm font-medium text-gray-600 mb-3">Quick Start</h3>
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3">Quick Start</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-              <div className="flex items-start gap-2 text-sm text-gray-500">
+              <div className="flex items-start gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <Upload size={16} className="mt-0.5 text-gray-400 shrink-0" />
                 <span>Import audio file (.wav, .mp3, etc.)</span>
               </div>
-              <div className="flex items-start gap-2 text-sm text-gray-500">
+              <div className="flex items-start gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <FileText size={16} className="mt-0.5 text-gray-400 shrink-0" />
                 <span>Load RTTM diarization file</span>
               </div>
-              <div className="flex items-start gap-2 text-sm text-gray-500">
+              <div className="flex items-start gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <MousePointer2 size={16} className="mt-0.5 text-gray-400 shrink-0" />
                 <span>Click segments to edit</span>
               </div>
-              <div className="flex items-start gap-2 text-sm text-gray-500">
+              <div className="flex items-start gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <Music size={16} className="mt-0.5 text-gray-400 shrink-0" />
                 <span>Click waveform to seek</span>
               </div>

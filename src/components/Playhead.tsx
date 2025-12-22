@@ -9,7 +9,7 @@ export function Playhead() {
 
   return (
     <div
-      className="absolute top-0 bottom-0 w-0.5 bg-slate-800 z-20 pointer-events-none"
+      className="absolute top-0 bottom-0 w-0.5 bg-slate-800 dark:bg-slate-200 z-20 pointer-events-none"
       style={{ left: `${left}px` }}
     />
   );

@@ -1,6 +1,15 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import { useEditorStore } from '../store/editorStore';
+
+// Get waveform colors from CSS variables
+function getWaveformColors() {
+  const style = getComputedStyle(document.documentElement);
+  return {
+    waveColor: style.getPropertyValue('--waveform-color').trim() || '#6b7280',
+    progressColor: style.getPropertyValue('--waveform-progress').trim() || '#3b82f6',
+  };
+}
 
 export function WaveformCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -12,6 +21,30 @@ export function WaveformCanvas() {
   const setPlaying = useEditorStore((s) => s.setPlaying);
   const setCurrentTime = useEditorStore((s) => s.setCurrentTime);
   const setDuration = useEditorStore((s) => s.setDuration);
+
+  // Update waveform colors when theme changes
+  const updateColors = useCallback(() => {
+    if (!wavesurferRef.current) return;
+    const { waveColor, progressColor } = getWaveformColors();
+    wavesurferRef.current.setOptions({
+      waveColor,
+      progressColor,
+    });
+  }, []);
+
+  // Listen for theme changes
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.attributeName === 'class') {
+          updateColors();
+        }
+      }
+    });
+
+    observer.observe(document.documentElement, { attributes: true });
+    return () => observer.disconnect();
+  }, [updateColors]);
 
   // Initialize WaveSurfer and load audio when audioFile is set
   useEffect(() => {
@@ -25,10 +58,12 @@ export function WaveformCanvas() {
       wavesurferRef.current = null;
     }
 
+    const { waveColor, progressColor } = getWaveformColors();
+
     const ws = WaveSurfer.create({
       container: containerRef.current,
-      waveColor: '#3b82f6',
-      progressColor: '#1d4ed8',
+      waveColor,
+      progressColor,
       cursorColor: 'transparent', // Hide WaveSurfer cursor, we use our own Playhead
       cursorWidth: 0,
       height: 128,
@@ -98,8 +133,8 @@ export function WaveformCanvas() {
 
   if (!audioFile) {
     return (
-      <div className="bg-white border-b border-gray-200 min-h-[128px] flex-1">
-        <div className="flex items-center justify-center h-32 bg-gray-100 text-gray-400">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 min-h-[128px] flex-1">
+        <div className="flex items-center justify-center h-32 bg-gray-100 dark:bg-gray-800 text-gray-400">
           Import an audio file to see the waveform
         </div>
       </div>
@@ -107,7 +142,7 @@ export function WaveformCanvas() {
   }
 
   return (
-    <div className="bg-white border-b border-gray-200 min-h-[128px] flex-1">
+    <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 min-h-[128px] flex-1">
       <div ref={containerRef} className="w-full" />
     </div>
   );

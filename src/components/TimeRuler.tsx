@@ -50,12 +50,12 @@ export function TimeRuler() {
 
   return (
     <div
-      className="flex border-b border-gray-300 bg-gray-50"
+      className="flex border-b border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800"
       style={{ width: `${totalWidth + labelWidth}px` }}
     >
       {/* Spacer for label column */}
       <div
-        className="sticky left-0 z-10 shrink-0 bg-gray-50 border-r border-gray-300"
+        className="sticky left-0 z-10 shrink-0 bg-gray-50 dark:bg-gray-800 border-r border-gray-300 dark:border-gray-600"
         style={{ width: `${labelWidth}px` }}
       />
 
@@ -71,7 +71,7 @@ export function TimeRuler() {
             className="absolute top-0"
             style={{ left: `${time * pixelsPerSecond}px` }}
           >
-            <div className="w-px h-1.5 bg-gray-300" />
+            <div className="w-px h-1.5 bg-gray-300 dark:bg-gray-600" />
           </div>
         ))}
 
@@ -82,8 +82,8 @@ export function TimeRuler() {
             className="absolute top-0 flex flex-col items-center"
             style={{ left: `${time * pixelsPerSecond}px` }}
           >
-            <div className="w-px h-2.5 bg-gray-400" />
-            <span className="text-xs text-gray-500 -translate-x-1/2">
+            <div className="w-px h-2.5 bg-gray-400 dark:bg-gray-500" />
+            <span className="text-xs text-gray-500 dark:text-gray-400 -translate-x-1/2">
               {formatTime(time)}
             </span>
           </div>

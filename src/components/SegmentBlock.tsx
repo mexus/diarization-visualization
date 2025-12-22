@@ -81,7 +81,7 @@ export function SegmentBlock({ segment }: SegmentBlockProps) {
       className={`absolute top-1 bottom-1 rounded-md cursor-pointer
         transition-all duration-150 ease-out
         ${isSelected
-          ? 'ring-2 ring-blue-500 ring-offset-1 shadow-md'
+          ? 'ring-2 ring-blue-500 ring-offset-1 dark:ring-offset-gray-900 shadow-md'
           : 'hover:brightness-105 hover:shadow-sm hover:-translate-y-px'
         }`}
       style={{

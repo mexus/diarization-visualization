@@ -68,7 +68,7 @@ export function EditorWorkspace() {
   }
 
   return (
-    <div className="flex flex-col bg-gray-50 flex-1">
+    <div className="flex flex-col bg-gray-50 dark:bg-gray-800 flex-1">
       {/* Scrollable container - height fits content */}
       <div
         ref={scrollContainerRef}
@@ -82,11 +82,11 @@ export function EditorWorkspace() {
         <DragGuideLine />
 
         {/* Waveform section */}
-        <div className="sticky top-0 z-10 bg-white shadow-sm">
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 shadow-sm">
           <div className="flex">
             {/* Spacer for label alignment with resize handle */}
             <div
-              className="shrink-0 bg-gray-100 border-r border-gray-300"
+              className="shrink-0 bg-gray-100 dark:bg-gray-800 border-r border-gray-300 dark:border-gray-700"
               style={{ width: `${labelWidth}px` }}
             />
             <WaveformCanvas />
