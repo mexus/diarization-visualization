@@ -31,7 +31,7 @@ function formatTime(seconds: number, includeMs = false): string {
 }
 
 function Separator() {
-  return <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />;
+  return <div className="hidden sm:block w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />;
 }
 
 interface HeaderProps {
@@ -118,8 +118,8 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange }
   const zoomProgress = ((pixelsPerSecond - 10) / 190) * 100;
 
   return (
-    <header className="sticky top-0 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3 shadow-sm">
-      <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-2 sm:px-4 py-2 sm:py-3 shadow-sm">
+      <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
         {/* File Controls */}
         <div className="flex items-center gap-2">
           <input
@@ -131,12 +131,13 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange }
           />
           <button
             onClick={() => audioInputRef.current?.click()}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md
+            className="flex items-center gap-2 px-2 sm:px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md
               hover:bg-blue-600 active:bg-blue-700 transition-colors shadow-sm
               focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
+            title="Import Audio"
           >
             <Upload size={16} />
-            Audio
+            <span className="hidden sm:inline">Audio</span>
           </button>
 
           <input
@@ -148,32 +149,33 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange }
           />
           <button
             onClick={() => rttmInputRef.current?.click()}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-md
+            className="flex items-center gap-2 px-2 sm:px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-md
               hover:bg-gray-200 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-600 transition-colors
               focus:outline-none focus:ring-2 focus:ring-gray-400/50 focus:ring-offset-1 dark:focus:ring-offset-gray-900"
+            title="Import RTTM"
           >
             <FileText size={16} />
-            RTTM
+            <span className="hidden sm:inline">RTTM</span>
           </button>
 
           <button
             onClick={handleRTTMExport}
             disabled={segments.length === 0}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-green-500 text-white rounded-md
+            className="flex items-center gap-2 px-2 sm:px-3 py-1.5 text-sm bg-green-500 text-white rounded-md
               hover:bg-green-600 active:bg-green-700 transition-colors shadow-sm
               disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none
               focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
             title="Export RTTM"
           >
             <Download size={16} />
-            Export
+            <span className="hidden sm:inline">Export</span>
           </button>
         </div>
 
         <Separator />
 
-        {/* Undo/Redo */}
-        <div className="flex items-center gap-1">
+        {/* Undo/Redo - hidden on mobile */}
+        <div className="hidden sm:flex items-center gap-1">
           <button
             onClick={undo}
             disabled={history.length === 0}
@@ -226,15 +228,16 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange }
 
         <Separator />
 
-        {/* Time Display */}
-        <div className="text-sm font-mono text-gray-600 dark:text-gray-300 tabular-nums">
-          {formatTime(currentTime, true)} / {formatTime(duration)}
+        {/* Time Display - compact on mobile */}
+        <div className="text-xs sm:text-sm font-mono text-gray-600 dark:text-gray-300 tabular-nums">
+          <span className="hidden sm:inline">{formatTime(currentTime, true)} / {formatTime(duration)}</span>
+          <span className="sm:hidden">{formatTime(currentTime)}</span>
         </div>
 
         <Separator />
 
-        {/* Playback Speed */}
-        <div className="flex items-center gap-2">
+        {/* Playback Speed - hidden on mobile */}
+        <div className="hidden md:flex items-center gap-2">
           <span className="text-sm text-gray-500 dark:text-gray-400">Speed</span>
           <select
             value={playbackRate}
@@ -256,8 +259,8 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange }
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Zoom Slider */}
-        <div className="flex items-center gap-2">
+        {/* Zoom Slider - hidden on mobile */}
+        <div className="hidden md:flex items-center gap-2">
           <span className="text-sm text-gray-500 dark:text-gray-400">Zoom</span>
           <button
             onClick={() => setZoom(Math.max(10, pixelsPerSecond - 20))}
