@@ -9,7 +9,9 @@ import {
   Download,
   ZoomIn,
   ZoomOut,
+  HelpCircle,
 } from 'lucide-react';
+import { ShortcutsModal } from './ShortcutsModal';
 import { useEditorStore } from '../store/editorStore';
 import { parseRTTM, serializeRTTM } from '../utils/rttmParser';
 
@@ -19,9 +21,14 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-export function Header() {
+interface HeaderProps {
+  helpDefaultOpen?: boolean;
+}
+
+export function Header({ helpDefaultOpen = false }: HeaderProps) {
   const audioInputRef = useRef<HTMLInputElement>(null);
   const rttmInputRef = useRef<HTMLInputElement>(null);
+  const [showHelp, setShowHelp] = useState(helpDefaultOpen);
 
   const {
     segments,
@@ -210,8 +217,20 @@ export function Header() {
           <span className="text-sm text-gray-500 w-12">
             {pixelsPerSecond}px/s
           </span>
+
+          {/* Help Button */}
+          <button
+            onClick={() => setShowHelp(true)}
+            className="p-2 rounded-md hover:bg-gray-100 transition-colors ml-2"
+            title="Keyboard shortcuts"
+          >
+            <HelpCircle size={20} className="text-gray-600" />
+          </button>
         </div>
       </div>
+
+      {/* Shortcuts Modal */}
+      <ShortcutsModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
     </header>
   );
 }

@@ -8,3 +8,4 @@ export { SegmentBlock } from './SegmentBlock';
 export { Playhead } from './Playhead';
 export { DragGuideLine } from './DragGuideLine';
 export { GhostSegment } from './GhostSegment';
+export { ShortcutsModal } from './ShortcutsModal';

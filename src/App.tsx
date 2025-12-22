@@ -1,12 +1,22 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Header, EditorWorkspace } from './components';
 import { useEditorStore } from './store/editorStore';
 import { useStatePersistence } from './hooks/useStatePersistence';
+import { isFirstVisit, markVisited } from './utils/firstVisit';
 import './index.css';
 
 function App() {
   // Persist editor state to browser storage
   useStatePersistence();
+
+  // Check first visit once and mark as visited
+  const [showHelpOnStart] = useState(() => {
+    const firstVisit = isFirstVisit();
+    if (firstVisit) {
+      markVisited();
+    }
+    return firstVisit;
+  });
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -56,7 +66,7 @@ function App() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">
-      <Header />
+      <Header helpDefaultOpen={showHelpOnStart} />
       <EditorWorkspace />
     </div>
   );
