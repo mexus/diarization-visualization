@@ -15,7 +15,8 @@ export interface DragState {
 
 export interface EditorState {
   segments: Segment[];
-  speakers: string[];
+  speakers: string[]; // Computed: unique speakers from segments + manualSpeakers
+  manualSpeakers: string[]; // Speakers added manually (not derived from segments)
   pixelsPerSecond: number;
   labelWidth: number;
   isPlaying: boolean;

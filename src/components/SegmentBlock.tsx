@@ -1,7 +1,7 @@
 import { X } from 'lucide-react';
 import type { Segment } from '../types';
 import { useEditorStore } from '../store/editorStore';
-import { getSpeakerColor } from '../utils/colors';
+import { getSpeakerGradient, getSpeakerShadow } from '../utils/colors';
 
 interface SegmentBlockProps {
   segment: Segment;
@@ -35,7 +35,8 @@ export function SegmentBlock({ segment }: SegmentBlockProps) {
 
   const left = displayStartTime * pixelsPerSecond;
   const width = Math.max(displayDuration * pixelsPerSecond, 4); // min 4px width
-  const color = getSpeakerColor(segment.speakerId);
+  const gradient = getSpeakerGradient(segment.speakerId);
+  const shadow = getSpeakerShadow(segment.speakerId);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Don't trigger seek or deselect
@@ -77,13 +78,17 @@ export function SegmentBlock({ segment }: SegmentBlockProps) {
 
   return (
     <div
-      className={`absolute top-1 bottom-1 rounded-md cursor-pointer transition-all ${
-        isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : 'hover:brightness-110'
-      }`}
+      className={`absolute top-1 bottom-1 rounded-md cursor-pointer
+        transition-all duration-150 ease-out
+        ${isSelected
+          ? 'ring-2 ring-blue-500 ring-offset-1 shadow-md'
+          : 'hover:brightness-105 hover:shadow-sm hover:-translate-y-px'
+        }`}
       style={{
         left: `${left}px`,
         width: `${width}px`,
-        backgroundColor: color,
+        background: gradient,
+        boxShadow: isSelected ? undefined : shadow,
         opacity: isRelabelDragging ? 0.5 : 1,
         cursor: isSelected ? 'grab' : 'pointer',
       }}

@@ -21,6 +21,10 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+function Separator() {
+  return <div className="w-px h-6 bg-gray-200 mx-1" />;
+}
+
 interface HeaderProps {
   helpDefaultOpen?: boolean;
 }
@@ -95,9 +99,12 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
 
   const playbackRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
+  // Calculate zoom progress for slider fill
+  const zoomProgress = ((pixelsPerSecond - 10) / 190) * 100;
+
   return (
-    <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3">
-      <div className="flex items-center gap-6">
+    <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
+      <div className="flex items-center gap-4">
         {/* File Controls */}
         <div className="flex items-center gap-2">
           <input
@@ -109,7 +116,9 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
           />
           <button
             onClick={() => audioInputRef.current?.click()}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md
+              hover:bg-blue-600 active:bg-blue-700 transition-colors shadow-sm
+              focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
           >
             <Upload size={16} />
             Audio
@@ -124,7 +133,9 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
           />
           <button
             onClick={() => rttmInputRef.current?.click()}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md
+              hover:bg-gray-200 active:bg-gray-300 transition-colors
+              focus:outline-none focus:ring-2 focus:ring-gray-400/50 focus:ring-offset-1"
           >
             <FileText size={16} />
             RTTM
@@ -133,7 +144,10 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
           <button
             onClick={handleRTTMExport}
             disabled={segments.length === 0}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-green-500 text-white rounded-md
+              hover:bg-green-600 active:bg-green-700 transition-colors shadow-sm
+              disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none
+              focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
             title="Export RTTM"
           >
             <Download size={16} />
@@ -141,19 +155,22 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
           </button>
         </div>
 
+        <Separator />
+
         {/* Transport Controls */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 bg-gray-50 rounded-lg px-2 py-1">
           <button
             onClick={() => handleSkip(-5)}
-            className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-md hover:bg-gray-200 transition-colors"
             title="Skip back 5s"
           >
-            <SkipBack size={20} />
+            <SkipBack size={20} className="text-gray-600" />
           </button>
 
           <button
             onClick={handlePlayPause}
-            className="p-2 rounded-full bg-gray-900 text-white hover:bg-gray-700 transition-colors"
+            className="p-2 rounded-full bg-gray-900 text-white hover:bg-gray-700 active:bg-gray-800 transition-colors shadow-sm
+              focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-2"
             title={isPlaying ? 'Pause' : 'Play'}
           >
             {isPlaying ? <Pause size={20} /> : <Play size={20} />}
@@ -161,17 +178,21 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
 
           <button
             onClick={() => handleSkip(5)}
-            className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-md hover:bg-gray-200 transition-colors"
             title="Skip forward 5s"
           >
-            <SkipForward size={20} />
+            <SkipForward size={20} className="text-gray-600" />
           </button>
         </div>
 
+        <Separator />
+
         {/* Time Display */}
-        <div className="text-sm font-mono text-gray-600">
+        <div className="text-sm font-mono text-gray-600 tabular-nums">
           {formatTime(currentTime)} / {formatTime(duration)}
         </div>
+
+        <Separator />
 
         {/* Playback Speed */}
         <div className="flex items-center gap-2">
@@ -179,7 +200,11 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
           <select
             value={playbackRate}
             onChange={(e) => handlePlaybackRateChange(Number(e.target.value))}
-            className="text-sm bg-gray-100 border border-gray-300 rounded px-2 py-1 cursor-pointer hover:bg-gray-200 transition-colors"
+            className="custom-dropdown text-sm bg-white border border-gray-200 rounded-md
+              px-3 py-1.5 cursor-pointer shadow-sm
+              hover:border-gray-300 hover:bg-gray-50
+              focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400
+              transition-all duration-150"
           >
             {playbackRates.map((rate) => (
               <option key={rate} value={rate}>
@@ -189,15 +214,18 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
           </select>
         </div>
 
+        {/* Spacer */}
+        <div className="flex-1" />
+
         {/* Zoom Slider */}
-        <div className="flex items-center gap-2 ml-auto">
+        <div className="flex items-center gap-2">
           <span className="text-sm text-gray-500">Zoom</span>
           <button
             onClick={() => setZoom(Math.max(10, pixelsPerSecond - 20))}
             className="p-1 rounded hover:bg-gray-100 transition-colors"
             title="Zoom out"
           >
-            <ZoomOut size={18} className="text-gray-600" />
+            <ZoomOut size={18} className="text-gray-500" />
           </button>
           <input
             type="range"
@@ -205,28 +233,32 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
             max="200"
             value={pixelsPerSecond}
             onChange={(e) => setZoom(Number(e.target.value))}
-            className="w-32"
+            className="w-28 custom-slider"
+            style={{
+              background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${zoomProgress}%, #e5e7eb ${zoomProgress}%, #e5e7eb 100%)`,
+              borderRadius: '2px',
+            }}
           />
           <button
             onClick={() => setZoom(Math.min(200, pixelsPerSecond + 20))}
             className="p-1 rounded hover:bg-gray-100 transition-colors"
             title="Zoom in"
           >
-            <ZoomIn size={18} className="text-gray-600" />
+            <ZoomIn size={18} className="text-gray-500" />
           </button>
-          <span className="text-sm text-gray-500 w-12">
+          <span className="text-sm text-gray-500 w-14 text-right tabular-nums">
             {pixelsPerSecond}px/s
           </span>
-
-          {/* Help Button */}
-          <button
-            onClick={() => setShowHelp(true)}
-            className="p-2 rounded-md hover:bg-gray-100 transition-colors ml-2"
-            title="Keyboard shortcuts"
-          >
-            <HelpCircle size={20} className="text-gray-600" />
-          </button>
         </div>
+
+        {/* Help Button */}
+        <button
+          onClick={() => setShowHelp(true)}
+          className="p-2 rounded-md hover:bg-gray-100 transition-colors ml-2"
+          title="Keyboard shortcuts"
+        >
+          <HelpCircle size={20} className="text-gray-500" />
+        </button>
       </div>
 
       {/* Shortcuts Modal */}

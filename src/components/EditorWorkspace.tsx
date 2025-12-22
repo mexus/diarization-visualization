@@ -3,6 +3,8 @@ import { WaveformCanvas } from './WaveformCanvas';
 import { TimelineContainer } from './TimelineContainer';
 import { Playhead } from './Playhead';
 import { DragGuideLine } from './DragGuideLine';
+import { EmptyState } from './EmptyState';
+import { SegmentHint } from './SegmentHint';
 import { useEditorStore } from '../store/editorStore';
 import { useDragHandlers } from '../hooks/useDragHandlers';
 
@@ -12,6 +14,9 @@ const AUTO_SCROLL_TARGET = 0.3; // Scroll to bring playhead to 30% from left
 export function EditorWorkspace() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  const audioFile = useEditorStore((s) => s.audioFile);
+  const segments = useEditorStore((s) => s.segments);
+  const speakers = useEditorStore((s) => s.speakers);
   const duration = useEditorStore((s) => s.duration);
   const currentTime = useEditorStore((s) => s.currentTime);
   const pixelsPerSecond = useEditorStore((s) => s.pixelsPerSecond);
@@ -57,13 +62,18 @@ export function EditorWorkspace() {
     }
   }, [currentTime, pixelsPerSecond, isPlaying, labelWidth]);
 
+  // Show empty state when no audio is loaded
+  if (!audioFile) {
+    return <EmptyState />;
+  }
+
   return (
-    <div className="flex flex-col bg-gray-50">
+    <div className="flex flex-col bg-gray-50 flex-1">
       {/* Scrollable container - height fits content */}
       <div
         ref={scrollContainerRef}
         data-scroll-container
-        className="overflow-x-auto overflow-y-visible relative"
+        className="overflow-x-auto overflow-y-visible relative flex-1"
       >
         {/* Playhead spans both sections */}
         {duration > 0 && <Playhead />}
@@ -84,7 +94,11 @@ export function EditorWorkspace() {
         </div>
 
         {/* Timeline / Swimlanes section */}
-        <TimelineContainer />
+        <div className="relative">
+          <TimelineContainer />
+          {/* Hint overlay when no segments */}
+          {segments.length === 0 && <SegmentHint hasSpeakers={speakers.length > 0} />}
+        </div>
       </div>
     </div>
   );

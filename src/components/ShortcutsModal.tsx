@@ -20,6 +20,7 @@ const mouseActions = [
   { action: 'Drag segment body', result: 'Move to different speaker' },
   { action: 'Double-click lane', result: 'Create new segment' },
   { action: 'Click speaker label', result: 'Rename speaker' },
+  { action: 'Drag speaker label', result: 'Merge speakers' },
   { action: 'Click timeline', result: 'Seek to position' },
   { action: 'Scroll wheel', result: 'Horizontal scroll' },
 ];

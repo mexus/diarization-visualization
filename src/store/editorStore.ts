@@ -17,6 +17,10 @@ interface EditorActions {
   setAudioHash: (hash: string | null) => void;
   renameSpeaker: (oldId: string, newId: string) => void;
   reset: () => void;
+  // Speaker management
+  addSpeaker: () => void;
+  removeSpeaker: (speakerId: string) => void;
+  mergeSpeakers: (sourceId: string, targetId: string) => boolean;
   // Selection
   selectSegment: (segmentId: string | null) => void;
   // Segment editing
@@ -38,6 +42,7 @@ const DEFAULT_LABEL_WIDTH = 112;
 const initialState: EditorState = {
   segments: [],
   speakers: [],
+  manualSpeakers: [],
   pixelsPerSecond: DEFAULT_PIXELS_PER_SECOND,
   labelWidth: DEFAULT_LABEL_WIDTH,
   isPlaying: false,
@@ -48,6 +53,22 @@ const initialState: EditorState = {
   selectedSegmentId: null,
   dragState: null,
 };
+
+// Merge speakers from segments with manually added speakers
+function computeSpeakers(segments: Segment[], manualSpeakers: string[]): string[] {
+  const fromSegments = extractSpeakers(segments);
+  const combined = new Set([...fromSegments, ...manualSpeakers]);
+  return Array.from(combined).sort();
+}
+
+// Generate the next available speaker ID (SPEAKER_00, SPEAKER_01, etc.)
+function getNextSpeakerId(existingSpeakers: string[]): string {
+  let index = 0;
+  while (existingSpeakers.includes(`SPEAKER_${index.toString().padStart(2, '0')}`)) {
+    index++;
+  }
+  return `SPEAKER_${index.toString().padStart(2, '0')}`;
+}
 
 // Check if a segment would overlap with existing segments in the same lane
 function wouldOverlap(
@@ -72,10 +93,10 @@ export const useEditorStore = create<EditorState & EditorActions>()(
   ...initialState,
 
   setSegments: (segments) =>
-    set({
+    set((state) => ({
       segments,
-      speakers: extractSpeakers(segments),
-    }),
+      speakers: computeSpeakers(segments, state.manualSpeakers),
+    })),
 
   setZoom: (pixelsPerSecond) => set({ pixelsPerSecond }),
 
@@ -103,13 +124,78 @@ export const useEditorStore = create<EditorState & EditorActions>()(
         seg.speakerId === oldId ? { ...seg, speakerId: trimmedNewId } : seg
       );
 
+      // Also rename in manual speakers if present
+      const updatedManualSpeakers = state.manualSpeakers.map((id) =>
+        id === oldId ? trimmedNewId : id
+      );
+
       return {
         segments: updatedSegments,
-        speakers: extractSpeakers(updatedSegments),
+        manualSpeakers: updatedManualSpeakers,
+        speakers: computeSpeakers(updatedSegments, updatedManualSpeakers),
       };
     }),
 
   reset: () => set(initialState),
+
+  // Speaker management
+  addSpeaker: () =>
+    set((state) => {
+      const newSpeakerId = getNextSpeakerId(state.speakers);
+      const newManualSpeakers = [...state.manualSpeakers, newSpeakerId];
+      return {
+        manualSpeakers: newManualSpeakers,
+        speakers: computeSpeakers(state.segments, newManualSpeakers),
+      };
+    }),
+
+  removeSpeaker: (speakerId) =>
+    set((state) => {
+      // Only allow removing speakers that have no segments
+      const hasSegments = state.segments.some((s) => s.speakerId === speakerId);
+      if (hasSegments) return state;
+
+      // Remove from manual speakers list
+      const newManualSpeakers = state.manualSpeakers.filter((id) => id !== speakerId);
+      return {
+        manualSpeakers: newManualSpeakers,
+        speakers: computeSpeakers(state.segments, newManualSpeakers),
+      };
+    }),
+
+  // Merge all segments from source speaker into target speaker
+  mergeSpeakers: (sourceId, targetId) => {
+    const state = useEditorStore.getState();
+    if (sourceId === targetId) return false;
+
+    const sourceSegments = state.segments.filter((s) => s.speakerId === sourceId);
+    if (sourceSegments.length === 0) return false;
+
+    // Check if any source segment would overlap with target segments
+    for (const seg of sourceSegments) {
+      if (wouldOverlap(state.segments, targetId, seg.startTime, seg.duration, seg.id)) {
+        return false; // Can't merge due to overlaps
+      }
+    }
+
+    // Perform the merge
+    set((state) => {
+      const updatedSegments = state.segments.map((s) =>
+        s.speakerId === sourceId ? { ...s, speakerId: targetId } : s
+      );
+
+      // Remove source from manualSpeakers if present
+      const newManualSpeakers = state.manualSpeakers.filter((id) => id !== sourceId);
+
+      return {
+        segments: updatedSegments,
+        manualSpeakers: newManualSpeakers,
+        speakers: computeSpeakers(updatedSegments, newManualSpeakers),
+      };
+    });
+
+    return true;
+  },
 
   // Selection
   selectSegment: (segmentId) => set({ selectedSegmentId: segmentId }),
@@ -188,7 +274,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
 
       return {
         segments: updatedSegments,
-        speakers: extractSpeakers(updatedSegments),
+        speakers: computeSpeakers(updatedSegments, state.manualSpeakers),
       };
     }),
 
@@ -198,7 +284,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       const updatedSegments = state.segments.filter((s) => s.id !== segmentId);
       return {
         segments: updatedSegments,
-        speakers: extractSpeakers(updatedSegments),
+        speakers: computeSpeakers(updatedSegments, state.manualSpeakers),
         selectedSegmentId: state.selectedSegmentId === segmentId ? null : state.selectedSegmentId,
       };
     }),
@@ -223,9 +309,13 @@ export const useEditorStore = create<EditorState & EditorActions>()(
 
       const updatedSegments = [...state.segments, newSegment];
 
+      // Remove speaker from manualSpeakers if it now has segments
+      const updatedManualSpeakers = state.manualSpeakers.filter((id) => id !== speakerId);
+
       return {
         segments: updatedSegments,
-        speakers: extractSpeakers(updatedSegments),
+        manualSpeakers: updatedManualSpeakers,
+        speakers: computeSpeakers(updatedSegments, updatedManualSpeakers),
         selectedSegmentId: newSegment.id,
       };
     }),

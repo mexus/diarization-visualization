@@ -9,3 +9,6 @@ export { Playhead } from './Playhead';
 export { DragGuideLine } from './DragGuideLine';
 export { GhostSegment } from './GhostSegment';
 export { ShortcutsModal } from './ShortcutsModal';
+export { ConfirmMergeModal } from './ConfirmMergeModal';
+export { EmptyState } from './EmptyState';
+export { SegmentHint } from './SegmentHint';
