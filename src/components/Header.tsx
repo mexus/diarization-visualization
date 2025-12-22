@@ -17,10 +17,15 @@ import { ShortcutsModal } from './ShortcutsModal';
 import { useEditorStore } from '../store/editorStore';
 import { parseRTTM, serializeRTTM } from '../utils/rttmParser';
 
-function formatTime(seconds: number): string {
+function formatTime(seconds: number, includeMs = false): string {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
+  const base = `${mins}:${secs.toString().padStart(2, '0')}`;
+  if (includeMs) {
+    const ms = Math.floor((seconds % 1) * 1000);
+    return `${base}.${ms.toString().padStart(3, '0')}`;
+  }
+  return base;
 }
 
 function Separator() {
@@ -219,7 +224,7 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
 
         {/* Time Display */}
         <div className="text-sm font-mono text-gray-600 tabular-nums">
-          {formatTime(currentTime)} / {formatTime(duration)}
+          {formatTime(currentTime, true)} / {formatTime(duration)}
         </div>
 
         <Separator />
