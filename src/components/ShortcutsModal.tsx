@@ -10,6 +10,8 @@ const keyboardShortcuts = [
   { key: 'Space', action: 'Play / Pause' },
   { key: '←', action: 'Skip back 5s' },
   { key: '→', action: 'Skip forward 5s' },
+  { key: 'Ctrl+Z', action: 'Undo' },
+  { key: 'Ctrl+Shift+Z', action: 'Redo' },
   { key: 'Delete', action: 'Delete selected segment' },
   { key: 'Escape', action: 'Deselect / Close dialog' },
 ];

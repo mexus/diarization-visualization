@@ -10,6 +10,8 @@ import {
   ZoomIn,
   ZoomOut,
   HelpCircle,
+  Undo2,
+  Redo2,
 } from 'lucide-react';
 import { ShortcutsModal } from './ShortcutsModal';
 import { useEditorStore } from '../store/editorStore';
@@ -40,9 +42,13 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
     currentTime,
     duration,
     pixelsPerSecond,
+    history,
+    future,
     setAudioFile,
     setSegments,
     setZoom,
+    undo,
+    redo,
   } = useEditorStore();
 
   const handleAudioImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,6 +158,30 @@ export function Header({ helpDefaultOpen = false }: HeaderProps) {
           >
             <Download size={16} />
             Export
+          </button>
+        </div>
+
+        <Separator />
+
+        {/* Undo/Redo */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={undo}
+            disabled={history.length === 0}
+            className="p-2 rounded-md hover:bg-gray-100 transition-colors
+              disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            title="Undo (Ctrl+Z)"
+          >
+            <Undo2 size={18} className="text-gray-600" />
+          </button>
+          <button
+            onClick={redo}
+            disabled={future.length === 0}
+            className="p-2 rounded-md hover:bg-gray-100 transition-colors
+              disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            title="Redo (Ctrl+Shift+Z)"
+          >
+            <Redo2 size={18} className="text-gray-600" />
           </button>
         </div>
 

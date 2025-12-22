@@ -6,12 +6,12 @@ import { loadState } from '../utils/stateStorage';
 /**
  * Hook that handles audio file hashing and state restoration.
  * When an audio file is loaded, computes its hash and restores
- * any previously saved segments for that file.
+ * any previously saved state (segments, speakers, history) for that file.
  */
 export function useStatePersistence() {
   const audioFile = useEditorStore((s) => s.audioFile);
   const setAudioHash = useEditorStore((s) => s.setAudioHash);
-  const setSegments = useEditorStore((s) => s.setSegments);
+  const restoreWithHistory = useEditorStore((s) => s.restoreWithHistory);
   const segments = useEditorStore((s) => s.segments);
 
   useEffect(() => {
@@ -30,15 +30,40 @@ export function useStatePersistence() {
       // Only restore if no segments are currently loaded
       // (user might have imported RTTM already)
       if (segments.length === 0) {
-        const savedSegments = loadState(hash);
-        if (savedSegments && savedSegments.length > 0) {
-          // Regenerate IDs to ensure uniqueness
-          const restoredSegments = savedSegments.map((seg) => ({
+        const savedState = loadState(hash);
+        if (savedState && (savedState.segments.length > 0 || savedState.manualSpeakers.length > 0)) {
+          // Regenerate segment IDs to ensure uniqueness
+          const restoredSegments = savedState.segments.map((seg) => ({
             ...seg,
             id: crypto.randomUUID(),
           }));
-          setSegments(restoredSegments);
-          console.log(`Restored ${restoredSegments.length} segments from browser storage`);
+
+          // Also regenerate IDs in history entries
+          const restoredHistory = savedState.history.map((entry) => ({
+            ...entry,
+            segments: entry.segments.map((seg) => ({
+              ...seg,
+              id: crypto.randomUUID(),
+            })),
+          }));
+
+          const restoredFuture = savedState.future.map((entry) => ({
+            ...entry,
+            segments: entry.segments.map((seg) => ({
+              ...seg,
+              id: crypto.randomUUID(),
+            })),
+          }));
+
+          restoreWithHistory(
+            restoredSegments,
+            savedState.manualSpeakers,
+            restoredHistory,
+            restoredFuture
+          );
+          console.log(
+            `Restored ${restoredSegments.length} segments, ${savedState.history.length} history entries from browser storage`
+          );
         }
       }
     });
@@ -48,5 +73,5 @@ export function useStatePersistence() {
     };
     // Only run when audioFile changes, not when segments change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [audioFile, setAudioHash, setSegments]);
+  }, [audioFile, setAudioHash, restoreWithHistory]);
 }

@@ -13,6 +13,11 @@ export interface DragState {
   originalSegment: Segment; // snapshot before drag
 }
 
+export interface HistoryEntry {
+  segments: Segment[];
+  manualSpeakers: string[];
+}
+
 export interface EditorState {
   segments: Segment[];
   speakers: string[]; // Computed: unique speakers from segments + manualSpeakers
@@ -26,4 +31,7 @@ export interface EditorState {
   audioHash: string | null;
   selectedSegmentId: string | null;
   dragState: DragState | null;
+  // Undo/redo history
+  history: HistoryEntry[];
+  future: HistoryEntry[];
 }

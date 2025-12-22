@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import type { Segment, EditorState, DragState } from '../types';
+import type { Segment, EditorState, DragState, HistoryEntry } from '../types';
 import { extractSpeakers } from '../utils/rttmParser';
 import { saveState } from '../utils/stateStorage';
 
 const MIN_SEGMENT_DURATION = 0.1; // seconds
+const MAX_HISTORY = 50; // Maximum undo/redo steps
 
 interface EditorActions {
   setSegments: (segments: Segment[]) => void;
@@ -34,6 +35,11 @@ interface EditorActions {
   startDrag: (dragState: DragState) => void;
   updateDrag: (updates: Partial<Omit<DragState, 'type' | 'segmentId' | 'originalSegment'>>) => void;
   endDrag: () => void;
+  // Undo/redo
+  undo: () => void;
+  redo: () => void;
+  clearHistory: () => void;
+  restoreWithHistory: (segments: Segment[], manualSpeakers: string[], history: HistoryEntry[], future: HistoryEntry[]) => void;
 }
 
 const DEFAULT_PIXELS_PER_SECOND = 50;
@@ -52,7 +58,27 @@ const initialState: EditorState = {
   audioHash: null,
   selectedSegmentId: null,
   dragState: null,
+  history: [],
+  future: [],
 };
+
+// Helper to create a history entry from current state
+function createHistoryEntry(state: EditorState): HistoryEntry {
+  return {
+    segments: state.segments,
+    manualSpeakers: state.manualSpeakers,
+  };
+}
+
+// Helper to push current state to history (call before making changes)
+function pushHistory(state: EditorState): Partial<EditorState> {
+  const entry = createHistoryEntry(state);
+  const newHistory = [entry, ...state.history].slice(0, MAX_HISTORY);
+  return {
+    history: newHistory,
+    future: [], // Clear redo stack on new action
+  };
+}
 
 // Merge speakers from segments with manually added speakers
 function computeSpeakers(segments: Segment[], manualSpeakers: string[]): string[] {
@@ -96,6 +122,8 @@ export const useEditorStore = create<EditorState & EditorActions>()(
     set((state) => ({
       segments,
       speakers: computeSpeakers(segments, state.manualSpeakers),
+      history: [], // Clear history when loading new segments
+      future: [],
     })),
 
   setZoom: (pixelsPerSecond) => set({ pixelsPerSecond }),
@@ -130,6 +158,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       );
 
       return {
+        ...pushHistory(state),
         segments: updatedSegments,
         manualSpeakers: updatedManualSpeakers,
         speakers: computeSpeakers(updatedSegments, updatedManualSpeakers),
@@ -144,6 +173,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       const newSpeakerId = getNextSpeakerId(state.speakers);
       const newManualSpeakers = [...state.manualSpeakers, newSpeakerId];
       return {
+        ...pushHistory(state),
         manualSpeakers: newManualSpeakers,
         speakers: computeSpeakers(state.segments, newManualSpeakers),
       };
@@ -158,6 +188,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       // Remove from manual speakers list
       const newManualSpeakers = state.manualSpeakers.filter((id) => id !== speakerId);
       return {
+        ...pushHistory(state),
         manualSpeakers: newManualSpeakers,
         speakers: computeSpeakers(state.segments, newManualSpeakers),
       };
@@ -188,6 +219,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       const newManualSpeakers = state.manualSpeakers.filter((id) => id !== sourceId);
 
       return {
+        ...pushHistory(state),
         segments: updatedSegments,
         manualSpeakers: newManualSpeakers,
         speakers: computeSpeakers(updatedSegments, newManualSpeakers),
@@ -273,6 +305,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       );
 
       return {
+        ...pushHistory(state),
         segments: updatedSegments,
         speakers: computeSpeakers(updatedSegments, state.manualSpeakers),
       };
@@ -283,6 +316,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
     set((state) => {
       const updatedSegments = state.segments.filter((s) => s.id !== segmentId);
       return {
+        ...pushHistory(state),
         segments: updatedSegments,
         speakers: computeSpeakers(updatedSegments, state.manualSpeakers),
         selectedSegmentId: state.selectedSegmentId === segmentId ? null : state.selectedSegmentId,
@@ -313,6 +347,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       const updatedManualSpeakers = state.manualSpeakers.filter((id) => id !== speakerId);
 
       return {
+        ...pushHistory(state),
         segments: updatedSegments,
         manualSpeakers: updatedManualSpeakers,
         speakers: computeSpeakers(updatedSegments, updatedManualSpeakers),
@@ -329,15 +364,80 @@ export const useEditorStore = create<EditorState & EditorActions>()(
     })),
 
   endDrag: () => set({ dragState: null }),
+
+  // Undo/redo
+  undo: () =>
+    set((state) => {
+      if (state.history.length === 0) return state;
+
+      const [previous, ...rest] = state.history;
+      const currentEntry = createHistoryEntry(state);
+
+      return {
+        segments: previous.segments,
+        manualSpeakers: previous.manualSpeakers,
+        speakers: computeSpeakers(previous.segments, previous.manualSpeakers),
+        history: rest,
+        future: [currentEntry, ...state.future].slice(0, MAX_HISTORY),
+        // Clear selection if the segment no longer exists
+        selectedSegmentId: previous.segments.some((s) => s.id === state.selectedSegmentId)
+          ? state.selectedSegmentId
+          : null,
+      };
+    }),
+
+  redo: () =>
+    set((state) => {
+      if (state.future.length === 0) return state;
+
+      const [next, ...rest] = state.future;
+      const currentEntry = createHistoryEntry(state);
+
+      return {
+        segments: next.segments,
+        manualSpeakers: next.manualSpeakers,
+        speakers: computeSpeakers(next.segments, next.manualSpeakers),
+        history: [currentEntry, ...state.history].slice(0, MAX_HISTORY),
+        future: rest,
+        // Clear selection if the segment no longer exists
+        selectedSegmentId: next.segments.some((s) => s.id === state.selectedSegmentId)
+          ? state.selectedSegmentId
+          : null,
+      };
+    }),
+
+  clearHistory: () => set({ history: [], future: [] }),
+
+  restoreWithHistory: (segments, manualSpeakers, history, future) =>
+    set(() => ({
+      segments,
+      manualSpeakers,
+      speakers: computeSpeakers(segments, manualSpeakers),
+      history,
+      future,
+    })),
 })));
 
-// Auto-save segments when they change (debounced via subscription)
+// Auto-save state when it changes (debounced via subscription)
 useEditorStore.subscribe(
-  (state) => ({ segments: state.segments, audioHash: state.audioHash }),
-  ({ segments, audioHash }) => {
-    if (audioHash && segments.length > 0) {
-      saveState(audioHash, segments);
+  (state) => ({
+    segments: state.segments,
+    manualSpeakers: state.manualSpeakers,
+    history: state.history,
+    future: state.future,
+    audioHash: state.audioHash,
+  }),
+  ({ segments, manualSpeakers, history, future, audioHash }) => {
+    if (audioHash && (segments.length > 0 || manualSpeakers.length > 0)) {
+      saveState(audioHash, segments, manualSpeakers, history, future);
     }
   },
-  { equalityFn: (a, b) => a.segments === b.segments && a.audioHash === b.audioHash }
+  {
+    equalityFn: (a, b) =>
+      a.segments === b.segments &&
+      a.manualSpeakers === b.manualSpeakers &&
+      a.history === b.history &&
+      a.future === b.future &&
+      a.audioHash === b.audioHash,
+  }
 );

@@ -1,10 +1,13 @@
-import type { Segment } from '../types';
+import type { Segment, HistoryEntry } from '../types';
 
 const STORAGE_KEY = 'diarization-editor-states';
 const MAX_ENTRIES = 10;
 
 interface StoredState {
   segments: Segment[];
+  manualSpeakers: string[];
+  history: HistoryEntry[];
+  future: HistoryEntry[];
   savedAt: number;
 }
 
@@ -34,10 +37,16 @@ function setStorageData(data: StorageData): void {
 }
 
 /**
- * Save segments for an audio file hash.
+ * Save state for an audio file hash.
  * Implements LRU eviction to keep only the last MAX_ENTRIES.
  */
-export function saveState(audioHash: string, segments: Segment[]): void {
+export function saveState(
+  audioHash: string,
+  segments: Segment[],
+  manualSpeakers: string[] = [],
+  history: HistoryEntry[] = [],
+  future: HistoryEntry[] = []
+): void {
   const data = getStorageData();
 
   // Remove from current position in order (if exists)
@@ -49,6 +58,9 @@ export function saveState(audioHash: string, segments: Segment[]): void {
   // Store the state
   data.entries[audioHash] = {
     segments,
+    manualSpeakers,
+    history,
+    future,
     savedAt: Date.now(),
   };
 
@@ -63,11 +75,18 @@ export function saveState(audioHash: string, segments: Segment[]): void {
   setStorageData(data);
 }
 
+interface LoadedState {
+  segments: Segment[];
+  manualSpeakers: string[];
+  history: HistoryEntry[];
+  future: HistoryEntry[];
+}
+
 /**
- * Load segments for an audio file hash.
+ * Load state for an audio file hash.
  * Returns null if no saved state exists.
  */
-export function loadState(audioHash: string): Segment[] | null {
+export function loadState(audioHash: string): LoadedState | null {
   const data = getStorageData();
   const state = data.entries[audioHash];
 
@@ -80,7 +99,12 @@ export function loadState(audioHash: string): Segment[] | null {
   data.order.unshift(audioHash);
   setStorageData(data);
 
-  return state.segments;
+  return {
+    segments: state.segments,
+    manualSpeakers: state.manualSpeakers ?? [],
+    history: state.history ?? [],
+    future: state.future ?? [],
+  };
 }
 
 /**

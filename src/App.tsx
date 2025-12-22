@@ -26,6 +26,20 @@ function App() {
         return;
       }
 
+      // Undo: Ctrl/Cmd+Z
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        useEditorStore.getState().undo();
+        return;
+      }
+
+      // Redo: Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'Z' || (e.key === 'z' && e.shiftKey) || e.key === 'y')) {
+        e.preventDefault();
+        useEditorStore.getState().redo();
+        return;
+      }
+
       // Space: toggle play/pause
       if (e.code === 'Space') {
         e.preventDefault();
