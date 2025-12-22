@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import {
   Play,
   Pause,
@@ -6,11 +6,12 @@ import {
   SkipForward,
   Upload,
   FileText,
+  Download,
   ZoomIn,
   ZoomOut,
 } from 'lucide-react';
 import { useEditorStore } from '../store/editorStore';
-import { parseRTTM } from '../utils/rttmParser';
+import { parseRTTM, serializeRTTM } from '../utils/rttmParser';
 
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -23,6 +24,7 @@ export function Header() {
   const rttmInputRef = useRef<HTMLInputElement>(null);
 
   const {
+    segments,
     isPlaying,
     currentTime,
     duration,
@@ -48,6 +50,21 @@ export function Header() {
     }
   };
 
+  const handleRTTMExport = () => {
+    if (segments.length === 0) return;
+
+    const rttmText = serializeRTTM(segments);
+    const blob = new Blob([rttmText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'diarization.rttm';
+    a.click();
+
+    URL.revokeObjectURL(url);
+  };
+
   const handlePlayPause = () => {
     const controls = (window as unknown as Record<string, { playPause?: () => void }>)
       .__wavesurferControls;
@@ -59,6 +76,17 @@ export function Header() {
       .__wavesurferControls;
     controls?.skip?.(seconds);
   };
+
+  const [playbackRate, setPlaybackRate] = useState(1);
+
+  const handlePlaybackRateChange = (rate: number) => {
+    setPlaybackRate(rate);
+    const controls = (window as unknown as Record<string, { setPlaybackRate?: (r: number) => void }>)
+      .__wavesurferControls;
+    controls?.setPlaybackRate?.(rate);
+  };
+
+  const playbackRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3">
@@ -94,6 +122,16 @@ export function Header() {
             <FileText size={16} />
             RTTM
           </button>
+
+          <button
+            onClick={handleRTTMExport}
+            disabled={segments.length === 0}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Export RTTM"
+          >
+            <Download size={16} />
+            Export
+          </button>
         </div>
 
         {/* Transport Controls */}
@@ -126,6 +164,22 @@ export function Header() {
         {/* Time Display */}
         <div className="text-sm font-mono text-gray-600">
           {formatTime(currentTime)} / {formatTime(duration)}
+        </div>
+
+        {/* Playback Speed */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500">Speed</span>
+          <select
+            value={playbackRate}
+            onChange={(e) => handlePlaybackRateChange(Number(e.target.value))}
+            className="text-sm bg-gray-100 border border-gray-300 rounded px-2 py-1 cursor-pointer hover:bg-gray-200 transition-colors"
+          >
+            {playbackRates.map((rate) => (
+              <option key={rate} value={rate}>
+                {rate}x
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Zoom Slider */}

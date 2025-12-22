@@ -2,7 +2,9 @@ import { useRef, useEffect, useCallback } from 'react';
 import { WaveformCanvas } from './WaveformCanvas';
 import { TimelineContainer } from './TimelineContainer';
 import { Playhead } from './Playhead';
+import { DragGuideLine } from './DragGuideLine';
 import { useEditorStore } from '../store/editorStore';
+import { useDragHandlers } from '../hooks/useDragHandlers';
 
 const AUTO_SCROLL_THRESHOLD = 0.9; // Scroll when playhead reaches 90% of visible area
 const AUTO_SCROLL_TARGET = 0.3; // Scroll to bring playhead to 30% from left
@@ -15,6 +17,9 @@ export function EditorWorkspace() {
   const pixelsPerSecond = useEditorStore((s) => s.pixelsPerSecond);
   const isPlaying = useEditorStore((s) => s.isPlaying);
   const labelWidth = useEditorStore((s) => s.labelWidth);
+
+  // Handle document-level drag events
+  useDragHandlers();
 
   // Mouse wheel → horizontal scroll
   const handleWheel = useCallback((e: WheelEvent) => {
@@ -57,10 +62,14 @@ export function EditorWorkspace() {
       {/* Scrollable container - height fits content */}
       <div
         ref={scrollContainerRef}
+        data-scroll-container
         className="overflow-x-auto overflow-y-visible relative"
       >
         {/* Playhead spans both sections */}
         {duration > 0 && <Playhead />}
+
+        {/* Guide line during resize drag */}
+        <DragGuideLine />
 
         {/* Waveform section */}
         <div className="sticky top-0 z-10 bg-white shadow-sm">

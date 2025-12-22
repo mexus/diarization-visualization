@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useEditorStore } from '../store/editorStore';
 import { getSpeakerColor } from '../utils/colors';
 import { SegmentBlock } from './SegmentBlock';
+import { GhostSegment } from './GhostSegment';
 
 interface SpeakerLaneProps {
   speakerId: string;
@@ -14,6 +15,9 @@ export function SpeakerLane({ speakerId }: SpeakerLaneProps) {
   const labelWidth = useEditorStore((s) => s.labelWidth);
   const setLabelWidth = useEditorStore((s) => s.setLabelWidth);
   const renameSpeaker = useEditorStore((s) => s.renameSpeaker);
+  const dragState = useEditorStore((s) => s.dragState);
+  const updateDrag = useEditorStore((s) => s.updateDrag);
+  const createSegment = useEditorStore((s) => s.createSegment);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(speakerId);
@@ -22,6 +26,13 @@ export function SpeakerLane({ speakerId }: SpeakerLaneProps) {
   const laneSegments = segments.filter((s) => s.speakerId === speakerId);
   const color = getSpeakerColor(speakerId);
   const totalWidth = duration * pixelsPerSecond;
+
+  // Check if this lane is the current drop target for relabel drag
+  const isRelabelTarget =
+    dragState?.type === 'relabel' && dragState.currentSpeakerId === speakerId;
+  // Check if this is a relabel drag but NOT originating from this lane
+  const showGhost =
+    isRelabelTarget && dragState.originalSegment.speakerId !== speakerId;
 
   // Focus input when entering edit mode
   useEffect(() => {
@@ -80,6 +91,29 @@ export function SpeakerLane({ speakerId }: SpeakerLaneProps) {
     document.addEventListener('mouseup', handleMouseUp);
   }, [labelWidth, setLabelWidth]);
 
+  // Track mouse position during relabel drag to update target speaker
+  const handleMouseMove = useCallback(() => {
+    if (dragState?.type === 'relabel') {
+      updateDrag({ currentSpeakerId: speakerId });
+    }
+  }, [dragState?.type, speakerId, updateDrag]);
+
+  // Double-click to create new segment
+  const handleDoubleClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickTime = clickX / pixelsPerSecond;
+
+      // Create 1-second segment centered on click position
+      const segmentDuration = 1;
+      const startTime = Math.max(0, clickTime - segmentDuration / 2);
+
+      createSegment(speakerId, startTime, segmentDuration);
+    },
+    [pixelsPerSecond, speakerId, createSegment]
+  );
+
   return (
     <div
       className="flex items-center border-b border-gray-200"
@@ -124,12 +158,19 @@ export function SpeakerLane({ speakerId }: SpeakerLaneProps) {
 
       {/* Segments container */}
       <div
-        className="relative h-10"
+        className={`relative h-10 ${isRelabelTarget ? 'bg-blue-50' : ''}`}
         style={{ width: `${totalWidth}px` }}
+        onMouseMove={handleMouseMove}
+        onDoubleClick={handleDoubleClick}
       >
         {laneSegments.map((segment) => (
           <SegmentBlock key={segment.id} segment={segment} />
         ))}
+
+        {/* Ghost segment preview during relabel drag */}
+        {showGhost && dragState && (
+          <GhostSegment segment={dragState.originalSegment} />
+        )}
       </div>
     </div>
   );

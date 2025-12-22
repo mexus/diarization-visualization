@@ -6,3 +6,5 @@ export { TimeRuler } from './TimeRuler';
 export { SpeakerLane } from './SpeakerLane';
 export { SegmentBlock } from './SegmentBlock';
 export { Playhead } from './Playhead';
+export { DragGuideLine } from './DragGuideLine';
+export { GhostSegment } from './GhostSegment';

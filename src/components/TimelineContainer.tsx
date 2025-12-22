@@ -8,9 +8,14 @@ export function TimelineContainer() {
   const pixelsPerSecond = useEditorStore((s) => s.pixelsPerSecond);
   const labelWidth = useEditorStore((s) => s.labelWidth);
 
-  // Click on timeline to seek
+  const selectSegment = useEditorStore((s) => s.selectSegment);
+
+  // Click on timeline to seek and deselect
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
+      // Deselect any selected segment (SegmentBlock clicks stopPropagation)
+      selectSegment(null);
+
       const rect = e.currentTarget.getBoundingClientRect();
       const clickX = e.clientX - rect.left - labelWidth;
 
@@ -22,7 +27,7 @@ export function TimelineContainer() {
         .__wavesurferControls;
       controls?.seekTo?.(time);
     },
-    [pixelsPerSecond, labelWidth]
+    [pixelsPerSecond, labelWidth, selectSegment]
   );
 
   if (speakers.length === 0) {

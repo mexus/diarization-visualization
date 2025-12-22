@@ -70,6 +70,9 @@ export function WaveformCanvas() {
           ws.seekTo(Math.max(0, Math.min(1, time / dur)));
         }
       },
+      setPlaybackRate: (rate: number) => {
+        ws.setPlaybackRate(rate);
+      },
     };
 
     // Load the audio file

@@ -5,6 +5,14 @@ export interface Segment {
   duration: number; // seconds
 }
 
+export interface DragState {
+  type: 'resize-left' | 'resize-right' | 'relabel';
+  segmentId: string;
+  currentTime?: number; // resize position in seconds
+  currentSpeakerId?: string; // relabel target lane
+  originalSegment: Segment; // snapshot before drag
+}
+
 export interface EditorState {
   segments: Segment[];
   speakers: string[];
@@ -14,4 +22,7 @@ export interface EditorState {
   currentTime: number;
   duration: number;
   audioFile: File | null;
+  audioHash: string | null;
+  selectedSegmentId: string | null;
+  dragState: DragState | null;
 }
