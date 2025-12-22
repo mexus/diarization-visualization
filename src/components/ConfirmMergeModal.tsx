@@ -101,7 +101,7 @@ export function ConfirmMergeModal({
             <AlertTriangle size={16} className="text-amber-500 mt-0.5 shrink-0" />
             <p className="text-sm text-amber-700">
               <strong>{sourceId}</strong> will be removed after merging.
-              This action cannot be undone.
+              Overlapping segments will be combined.
             </p>
           </div>
         </div>

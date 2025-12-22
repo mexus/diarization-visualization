@@ -178,12 +178,7 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
 
   const handleConfirmMerge = useCallback(() => {
     if (!pendingMerge) return;
-
-    const success = mergeSpeakers(pendingMerge.sourceId, speakerId);
-    if (!success) {
-      // Could show an error toast here
-      console.warn('Merge failed - segments would overlap');
-    }
+    mergeSpeakers(pendingMerge.sourceId, speakerId);
     setPendingMerge(null);
   }, [pendingMerge, mergeSpeakers, speakerId]);
 
