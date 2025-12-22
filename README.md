@@ -187,3 +187,5 @@ Modern browsers with:
 - ES2020+ JavaScript
 
 Tested on Chrome 120+, Firefox 120+, Safari 17+, Edge 120+.
+
+**Mobile**: Responsive design adapts the header for smaller screens. On mobile, some controls (zoom, speed, undo/redo) are hidden to fit the viewport. Core functionality (import, playback, export) remains accessible. All drag operations (segment resize, relabel, speaker merge, label width) support touch events.

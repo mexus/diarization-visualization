@@ -92,26 +92,38 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
     }
   };
 
-  // Handle resize drag
-  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+  // Handle resize drag (mouse and touch)
+  const handleResizeStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const startX = e.clientX;
+    const startX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const startWidth = labelWidth;
 
-    const handleMouseMove = (moveEvent: MouseEvent) => {
-      const delta = moveEvent.clientX - startX;
+    const handleMove = (moveEvent: MouseEvent | TouchEvent) => {
+      // Prevent scrolling during resize on touch devices
+      if ('touches' in moveEvent) {
+        moveEvent.preventDefault();
+      }
+      const clientX = 'touches' in moveEvent ? moveEvent.touches[0].clientX : moveEvent.clientX;
+      const delta = clientX - startX;
       setLabelWidth(startWidth + delta);
     };
 
-    const handleMouseUp = () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+    const handleEnd = () => {
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleEnd);
+      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener('touchend', handleEnd);
+      document.removeEventListener('touchcancel', handleEnd);
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleEnd);
+    // passive: false allows preventDefault() to stop scrolling
+    document.addEventListener('touchmove', handleMove, { passive: false });
+    document.addEventListener('touchend', handleEnd);
+    document.addEventListener('touchcancel', handleEnd);
   }, [labelWidth, setLabelWidth]);
 
   // Track mouse position during relabel drag to update target speaker
@@ -137,7 +149,7 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
     [pixelsPerSecond, speakerId, createSegment]
   );
 
-  // Drag handlers for speaker merge
+  // Drag handlers for speaker merge (HTML5 drag API for desktop)
   const handleDragStart = useCallback(
     (e: React.DragEvent) => {
       e.dataTransfer.setData('application/speaker-id', speakerId);
@@ -176,6 +188,107 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
     [speakerId]
   );
 
+  // Touch handlers for speaker merge (mobile)
+  const handleLabelTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (isEditing) return;
+
+      // Store the source speaker ID in a data attribute on the element
+      const target = e.currentTarget as HTMLElement;
+      target.dataset.touchDragSpeaker = speakerId;
+
+      const handleTouchMove = (moveEvent: TouchEvent) => {
+        const touch = moveEvent.touches[0];
+        if (!touch) return;
+
+        // Find which speaker label we're over
+        const labels = document.querySelectorAll('[data-speaker-label]');
+        let foundTarget = false;
+        for (const label of labels) {
+          const rect = label.getBoundingClientRect();
+          if (
+            touch.clientX >= rect.left &&
+            touch.clientX <= rect.right &&
+            touch.clientY >= rect.top &&
+            touch.clientY <= rect.bottom
+          ) {
+            const targetSpeakerId = label.getAttribute('data-speaker-label');
+            if (targetSpeakerId && targetSpeakerId !== speakerId) {
+              // Highlight drop target
+              label.classList.add('ring-2', 'ring-blue-400', 'bg-blue-100', 'dark:bg-blue-900/50');
+              foundTarget = true;
+            }
+          } else {
+            // Remove highlight from non-targets
+            label.classList.remove('ring-2', 'ring-blue-400', 'bg-blue-100', 'dark:bg-blue-900/50');
+          }
+        }
+        if (!foundTarget) {
+          // Clean up all highlights
+          labels.forEach((l) => l.classList.remove('ring-2', 'ring-blue-400', 'bg-blue-100', 'dark:bg-blue-900/50'));
+        }
+      };
+
+      const handleTouchEnd = (endEvent: TouchEvent) => {
+        const touch = endEvent.changedTouches[0];
+        if (!touch) {
+          cleanup();
+          return;
+        }
+
+        // Find which speaker label we dropped on
+        const labels = document.querySelectorAll('[data-speaker-label]');
+        for (const label of labels) {
+          const rect = label.getBoundingClientRect();
+          if (
+            touch.clientX >= rect.left &&
+            touch.clientX <= rect.right &&
+            touch.clientY >= rect.top &&
+            touch.clientY <= rect.bottom
+          ) {
+            const targetSpeakerId = label.getAttribute('data-speaker-label');
+            if (targetSpeakerId && targetSpeakerId !== speakerId) {
+              // Dispatch event to the TARGET lane to show merge confirmation
+              const mergeEvent = new CustomEvent('speaker-merge-request', {
+                detail: { sourceId: speakerId, targetId: targetSpeakerId },
+                bubbles: true,
+              });
+              document.dispatchEvent(mergeEvent);
+            }
+          }
+          label.classList.remove('ring-2', 'ring-blue-400', 'bg-blue-100', 'dark:bg-blue-900/50');
+        }
+
+        cleanup();
+      };
+
+      const cleanup = () => {
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+        document.removeEventListener('touchcancel', cleanup);
+        delete target.dataset.touchDragSpeaker;
+      };
+
+      document.addEventListener('touchmove', handleTouchMove, { passive: true });
+      document.addEventListener('touchend', handleTouchEnd);
+      document.addEventListener('touchcancel', cleanup);
+    },
+    [speakerId, isEditing]
+  );
+
+  // Listen for merge requests from other lanes (touch drag)
+  useEffect(() => {
+    const handleMergeRequest = (e: Event) => {
+      const { sourceId, targetId } = (e as CustomEvent).detail;
+      if (targetId === speakerId && sourceId !== speakerId) {
+        setPendingMerge({ sourceId });
+      }
+    };
+
+    document.addEventListener('speaker-merge-request', handleMergeRequest);
+    return () => document.removeEventListener('speaker-merge-request', handleMergeRequest);
+  }, [speakerId]);
+
   const handleConfirmMerge = useCallback(() => {
     if (!pendingMerge) return;
     mergeSpeakers(pendingMerge.sourceId, speakerId);
@@ -195,6 +308,7 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
     <div
       className={`flex items-center border-b border-gray-200 dark:border-gray-700 ${isEven ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/50 dark:bg-gray-800/50'}`}
       style={{ width: `${totalWidth + labelWidth}px` }}
+      data-speaker-lane={speakerId}
     >
       {/* Sticky label with left border accent and resize handle */}
       <div
@@ -204,11 +318,13 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
           ${isDragOver ? 'bg-blue-100 dark:bg-blue-900/50 ring-2 ring-blue-400 ring-inset' : ''}`}
         style={{ width: `${labelWidth}px`, borderLeft: `3px solid ${color}` }}
         draggable={!isEditing}
+        data-speaker-label={speakerId}
         onClick={handleLabelClick}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        onTouchStart={handleLabelTouchStart}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
       >
@@ -245,12 +361,13 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
         <div
           className="absolute top-0 bottom-0 -right-px w-px cursor-col-resize
             bg-gray-200 dark:bg-gray-700 hover:bg-blue-400 hover:w-0.5 active:bg-blue-500
-            z-20 transition-all duration-150"
+            z-20 transition-all duration-150 touch-none"
           onMouseDown={handleResizeStart}
+          onTouchStart={handleResizeStart}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Invisible wider hit area */}
-          <div className="absolute inset-y-0 -left-1.5 -right-1.5" />
+          {/* Invisible wider hit area for touch */}
+          <div className="absolute inset-y-0 -left-3 -right-3 sm:-left-1.5 sm:-right-1.5" />
         </div>
       </div>
 

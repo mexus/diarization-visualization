@@ -48,7 +48,7 @@ export function SegmentBlock({ segment }: SegmentBlockProps) {
     deleteSegment(segment.id);
   };
 
-  const handleResizeStart = (edge: 'left' | 'right') => (e: React.MouseEvent) => {
+  const handleResizeStart = (edge: 'left' | 'right') => (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -60,7 +60,7 @@ export function SegmentBlock({ segment }: SegmentBlockProps) {
     });
   };
 
-  const handleBodyMouseDown = (e: React.MouseEvent) => {
+  const handleBodyDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     // Only initiate relabel drag if already selected and not clicking on handles
     if (!isSelected) return;
     if ((e.target as HTMLElement).dataset.handle) return;
@@ -93,7 +93,8 @@ export function SegmentBlock({ segment }: SegmentBlockProps) {
         cursor: isSelected ? 'grab' : 'pointer',
       }}
       onClick={handleClick}
-      onMouseDown={handleBodyMouseDown}
+      onMouseDown={handleBodyDragStart}
+      onTouchStart={handleBodyDragStart}
       title={`${segment.speakerId}: ${segment.startTime.toFixed(2)}s - ${(segment.startTime + segment.duration).toFixed(2)}s`}
     >
       {/* Resize handles - only visible when selected */}
@@ -102,14 +103,16 @@ export function SegmentBlock({ segment }: SegmentBlockProps) {
           {/* Left resize handle */}
           <div
             data-handle="left"
-            className="absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize bg-white/30 hover:bg-white/60 rounded-l-md transition-colors"
+            className="absolute left-0 top-0 bottom-0 w-3 sm:w-2 cursor-ew-resize bg-white/30 hover:bg-white/60 active:bg-white/80 rounded-l-md transition-colors touch-none"
             onMouseDown={handleResizeStart('left')}
+            onTouchStart={handleResizeStart('left')}
           />
           {/* Right resize handle */}
           <div
             data-handle="right"
-            className="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize bg-white/30 hover:bg-white/60 rounded-r-md transition-colors"
+            className="absolute right-0 top-0 bottom-0 w-3 sm:w-2 cursor-ew-resize bg-white/30 hover:bg-white/60 active:bg-white/80 rounded-r-md transition-colors touch-none"
             onMouseDown={handleResizeStart('right')}
+            onTouchStart={handleResizeStart('right')}
           />
           {/* Delete button */}
           <button

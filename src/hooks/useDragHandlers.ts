@@ -2,7 +2,27 @@ import { useEffect } from 'react';
 import { useEditorStore } from '../store/editorStore';
 
 /**
- * Hook that handles document-level mouse events during drag operations.
+ * Helper to get clientX from mouse or touch event
+ */
+function getClientX(e: MouseEvent | TouchEvent): number {
+  if ('touches' in e) {
+    return e.touches[0]?.clientX ?? e.changedTouches[0]?.clientX ?? 0;
+  }
+  return e.clientX;
+}
+
+/**
+ * Helper to get clientY from mouse or touch event
+ */
+function getClientY(e: MouseEvent | TouchEvent): number {
+  if ('touches' in e) {
+    return e.touches[0]?.clientY ?? e.changedTouches[0]?.clientY ?? 0;
+  }
+  return e.clientY;
+}
+
+/**
+ * Hook that handles document-level mouse/touch events during drag operations.
  * Attaches listeners when dragState is active, detaches when drag ends.
  */
 export function useDragHandlers() {
@@ -13,7 +33,12 @@ export function useDragHandlers() {
   useEffect(() => {
     if (!dragState) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+      // Prevent scrolling during drag on touch devices
+      if ('touches' in e) {
+        e.preventDefault();
+      }
+
       const { updateDrag } = useEditorStore.getState();
 
       if (dragState.type === 'resize-left' || dragState.type === 'resize-right') {
@@ -23,15 +48,29 @@ export function useDragHandlers() {
 
         const rect = container.getBoundingClientRect();
         const scrollLeft = container.scrollLeft;
-        const mouseX = e.clientX - rect.left + scrollLeft - labelWidth;
+        const clientX = getClientX(e);
+        const mouseX = clientX - rect.left + scrollLeft - labelWidth;
         const time = Math.max(0, mouseX / pixelsPerSecond);
 
         updateDrag({ currentTime: time });
+      } else if (dragState.type === 'relabel') {
+        // For touch relabel, find which lane we're over
+        const clientY = getClientY(e);
+        const lanes = document.querySelectorAll('[data-speaker-lane]');
+        for (const lane of lanes) {
+          const rect = lane.getBoundingClientRect();
+          if (clientY >= rect.top && clientY <= rect.bottom) {
+            const speakerId = lane.getAttribute('data-speaker-lane');
+            if (speakerId) {
+              updateDrag({ currentSpeakerId: speakerId });
+            }
+            break;
+          }
+        }
       }
-      // Relabel drag updates currentSpeakerId via SpeakerLane's onMouseMove
     };
 
-    const handleMouseUp = () => {
+    const handleEnd = () => {
       const { dragState, updateSegment, endDrag } = useEditorStore.getState();
       if (!dragState) return;
 
@@ -63,12 +102,20 @@ export function useDragHandlers() {
       endDrag();
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    // Mouse events
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleEnd);
+    // Touch events - passive: false allows preventDefault() to stop scrolling
+    document.addEventListener('touchmove', handleMove, { passive: false });
+    document.addEventListener('touchend', handleEnd);
+    document.addEventListener('touchcancel', handleEnd);
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', handleMove);
+      document.removeEventListener('mouseup', handleEnd);
+      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener('touchend', handleEnd);
+      document.removeEventListener('touchcancel', handleEnd);
     };
   }, [dragState, pixelsPerSecond, labelWidth]);
 }
