@@ -86,7 +86,11 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange }
     const a = document.createElement('a');
     a.href = url;
     a.download = 'diarization.rttm';
+    // Mobile browsers require the anchor to be in the DOM for the click to work
+    a.style.display = 'none';
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
 
     URL.revokeObjectURL(url);
   };
