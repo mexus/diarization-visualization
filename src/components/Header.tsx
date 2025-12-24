@@ -16,11 +16,15 @@ import {
 } from 'lucide-react';
 import { ShortcutsModal } from './ShortcutsModal';
 import { SettingsModal } from './SettingsModal';
+import { RTTMMismatchModal } from './RTTMMismatchModal';
 import { ThemeToggle } from './ThemeToggle';
 import { useEditorStore } from '../store/editorStore';
 import { parseRTTM, serializeRTTM } from '../utils/rttmParser';
 import { formatDuration } from '../utils/formatTime';
+import { getRTTMCoverage, checkRTTMMismatch } from '../utils/rttmMismatch';
 import type { ThemeMode } from '../utils/themeStorage';
+import type { Segment } from '../types';
+import type { RTTMCoverage, MismatchInfo } from '../utils/rttmMismatch';
 
 function Separator() {
   return <div className="hidden sm:block w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />;
@@ -38,6 +42,12 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
   const rttmInputRef = useRef<HTMLInputElement>(null);
   const [showHelp, setShowHelp] = useState(helpDefaultOpen);
   const [showSettings, setShowSettings] = useState(false);
+  const [pendingRTTM, setPendingRTTM] = useState<{
+    file: File;
+    segments: Segment[];
+    coverage: RTTMCoverage;
+    mismatchInfo: MismatchInfo;
+  } | null>(null);
 
   // State selectors (each creates minimal subscription)
   const segments = useEditorStore((s) => s.segments);
@@ -46,6 +56,7 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
   const duration = useEditorStore((s) => s.duration);
   const pixelsPerSecond = useEditorStore((s) => s.pixelsPerSecond);
   const audioHash = useEditorStore((s) => s.audioHash);
+  const audioFile = useEditorStore((s) => s.audioFile);
   const history = useEditorStore((s) => s.history);
   const future = useEditorStore((s) => s.future);
 
@@ -70,12 +81,22 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
       try {
         setLoading('Loading RTTM file...');
         const text = await file.text();
-        const segments = parseRTTM(text);
-        if (segments.length === 0) {
+        const parsedSegments = parseRTTM(text);
+        if (parsedSegments.length === 0) {
           onToast('warning', 'No valid segments found in RTTM file');
         } else {
-          setSegments(segments);
-          onToast('success', `Loaded ${segments.length} segments`);
+          // Check for duration mismatch if audio is loaded
+          const coverage = getRTTMCoverage(parsedSegments);
+          const mismatchInfo = checkRTTMMismatch(coverage, duration);
+
+          if (mismatchInfo && audioFile && duration > 0) {
+            // Show mismatch modal and wait for user decision
+            setPendingRTTM({ file, segments: parsedSegments, coverage, mismatchInfo });
+          } else {
+            // No mismatch or no audio loaded - apply segments directly
+            setSegments(parsedSegments);
+            onToast('success', `Loaded ${parsedSegments.length} segments`);
+          }
         }
       } catch (error) {
         onToast('error', 'Failed to read RTTM file');
@@ -86,6 +107,18 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
     }
     // Reset input to allow re-selecting same file
     e.target.value = '';
+  };
+
+  const handleMismatchConfirm = () => {
+    if (pendingRTTM) {
+      setSegments(pendingRTTM.segments);
+      onToast('success', `Loaded ${pendingRTTM.segments.length} segments`);
+      setPendingRTTM(null);
+    }
+  };
+
+  const handleMismatchCancel = () => {
+    setPendingRTTM(null);
   };
 
   const handleRTTMExport = () => {
@@ -343,6 +376,21 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
         currentAudioHash={audioHash}
         onToast={onToast}
       />
+
+      {/* RTTM Mismatch Modal */}
+      {pendingRTTM && audioFile && (
+        <RTTMMismatchModal
+          isOpen={true}
+          audioFileName={audioFile.name}
+          audioDuration={duration}
+          rttmFileName={pendingRTTM.file.name}
+          segmentCount={pendingRTTM.segments.length}
+          rttmCoverage={pendingRTTM.coverage}
+          mismatchInfo={pendingRTTM.mismatchInfo}
+          onConfirm={handleMismatchConfirm}
+          onCancel={handleMismatchCancel}
+        />
+      )}
     </header>
   );
 }

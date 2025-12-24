@@ -43,6 +43,14 @@ A web-based tool for visualizing and correcting speaker diarization output. Prov
 
 A shortcuts reference modal is available via the **?** button in the header. On first visit, it appears automatically to help new users get started.
 
+### Duration Mismatch Warning
+
+When loading an RTTM file, the editor checks if it matches the audio duration. A warning modal appears if:
+- RTTM segments extend beyond the audio duration
+- The audio is significantly longer than the RTTM coverage (>10% or >5 seconds)
+
+The modal shows both file details and lets you choose to continue or cancel.
+
 ### Auto-Save
 
 Your edits are automatically saved in the browser. When you reload the same audio file, your previous segments, speakers, and undo history are restored. The editor remembers the last 10 audio files.
@@ -144,6 +152,7 @@ src/
 │   ├── SettingsModal.tsx   # Cache management UI
 │   ├── ConfirmMergeModal.tsx # Speaker merge confirmation
 │   ├── ConfirmDeleteModal.tsx # Delete confirmation dialog
+│   ├── RTTMMismatchModal.tsx  # RTTM duration mismatch warning
 │   ├── Toast.tsx           # Toast notifications
 │   ├── ThemeToggle.tsx     # Light/Dark/System theme switcher
 │   ├── EmptyState.tsx      # Welcome screen when no audio
@@ -158,6 +167,7 @@ src/
 │   └── useToast.ts           # Toast notification state
 ├── utils/
 │   ├── rttmParser.ts    # RTTM parse/serialize
+│   ├── rttmMismatch.ts  # RTTM duration mismatch detection
 │   ├── stateStorage.ts  # Versioned LRU localStorage manager
 │   ├── audioHash.ts     # SHA-256 file hashing
 │   ├── colors.ts        # Speaker color assignment
@@ -200,6 +210,7 @@ npm run test:coverage # Coverage report
 
 Test suites cover:
 - RTTM parsing/serialization (`src/utils/rttmParser.test.ts`)
+- RTTM mismatch detection (`src/utils/rttmMismatch.test.ts`)
 - Zustand store actions (`src/store/editorStore.test.ts`)
 - State persistence (`src/utils/stateStorage.test.ts`)
 - Speaker colors (`src/utils/colors.test.ts`)
