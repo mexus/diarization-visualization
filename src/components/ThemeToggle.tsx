@@ -19,12 +19,14 @@ export function ThemeToggle({ mode, onModeChange }: ThemeToggleProps) {
         <button
           key={value}
           onClick={() => onModeChange(value)}
-          className={`p-1.5 rounded-md transition-colors ${
+          className={`p-1.5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
             mode === value
               ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
           title={label}
+          aria-label={`${label} theme`}
+          aria-pressed={mode === value}
         >
           <Icon size={16} />
         </button>

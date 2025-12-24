@@ -1,9 +1,11 @@
 export { Header } from './header';
+export { ErrorBoundary } from './ErrorBoundary';
 export { EditorWorkspace } from './EditorWorkspace';
 export { WaveformCanvas } from './WaveformCanvas';
 export { TimelineContainer } from './TimelineContainer';
 export { TimeRuler } from './TimeRuler';
 export { SpeakerLane } from './SpeakerLane';
+export { SpeakerLabel } from './SpeakerLabel';
 export { SegmentBlock } from './SegmentBlock';
 export { Playhead } from './Playhead';
 export { DragGuideLine } from './DragGuideLine';

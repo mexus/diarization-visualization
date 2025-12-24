@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Segment } from '../types';
 import { useEditorStore } from '../store/editorStore';
 import { getSpeakerColor } from '../utils/colors';
@@ -10,7 +11,7 @@ interface GhostSegmentProps {
  * Ghost segment that appears in the target lane during relabel drag.
  * Shows a dashed outline preview of where the segment will be placed.
  */
-export function GhostSegment({ segment }: GhostSegmentProps) {
+export const GhostSegment = memo(function GhostSegment({ segment }: GhostSegmentProps) {
   const pixelsPerSecond = useEditorStore((s) => s.pixelsPerSecond);
 
   const left = segment.startTime * pixelsPerSecond;
@@ -28,4 +29,4 @@ export function GhostSegment({ segment }: GhostSegmentProps) {
       }}
     />
   );
-}
+});

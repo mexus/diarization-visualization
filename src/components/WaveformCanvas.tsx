@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import WaveSurfer from 'wavesurfer.js';
 import { useEditorStore } from '../store/editorStore';
 
@@ -15,6 +16,7 @@ export function WaveformCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const wavesurferRef = useRef<WaveSurfer | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const audioFile = useEditorStore((s) => s.audioFile);
   const pixelsPerSecond = useEditorStore((s) => s.pixelsPerSecond);
@@ -52,6 +54,7 @@ export function WaveformCanvas() {
     if (!containerRef.current || !audioFile) return;
 
     setIsReady(false);
+    setError(null); // Clear any previous errors
 
     // Destroy previous instance if any
     if (wavesurferRef.current) {
@@ -87,6 +90,21 @@ export function WaveformCanvas() {
     ws.on('play', () => setPlaying(true));
     ws.on('pause', () => setPlaying(false));
     ws.on('finish', () => setPlaying(false));
+
+    // Handle errors during audio loading and playback
+    ws.on('error', (err) => {
+      // Ignore abort errors - these happen during cleanup when component unmounts
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        return;
+      }
+      // Also ignore generic abort messages from fetch
+      const message = err instanceof Error ? err.message : String(err);
+      if (message.includes('aborted') || message.includes('abort')) {
+        return;
+      }
+      console.error('WaveSurfer error:', err);
+      setError(message || 'Failed to load audio file');
+    });
 
     wavesurferRef.current = ws;
 
@@ -138,6 +156,17 @@ export function WaveformCanvas() {
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 min-h-[128px] flex-1">
         <div className="flex items-center justify-center h-32 bg-gray-100 dark:bg-gray-800 text-gray-400">
           Import an audio file to see the waveform
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 min-h-[128px] flex-1">
+        <div className="flex items-center justify-center h-32 bg-red-50 dark:bg-red-900/20 gap-2">
+          <AlertTriangle className="w-5 h-5 text-red-500" />
+          <span className="text-red-600 dark:text-red-400 text-sm">{error}</span>
         </div>
       </div>
     );

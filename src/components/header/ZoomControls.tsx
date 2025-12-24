@@ -13,8 +13,9 @@ export function ZoomControls() {
       <span className="text-sm text-gray-500 dark:text-gray-400">Zoom</span>
       <button
         onClick={() => setZoom(Math.max(10, pixelsPerSecond - 20))}
-        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50"
         title="Zoom out"
+        aria-label="Zoom out"
       >
         <ZoomOut size={18} className="text-gray-500 dark:text-gray-400" />
       </button>
@@ -25,6 +26,7 @@ export function ZoomControls() {
         value={pixelsPerSecond}
         onChange={(e) => setZoom(Number(e.target.value))}
         className="w-28 custom-slider"
+        aria-label="Zoom level"
         style={{
           background: `linear-gradient(to right, var(--slider-track-active) 0%, var(--slider-track-active) ${zoomProgress}%, var(--slider-track-bg) ${zoomProgress}%, var(--slider-track-bg) 100%)`,
           borderRadius: '2px',
@@ -32,8 +34,9 @@ export function ZoomControls() {
       />
       <button
         onClick={() => setZoom(Math.min(200, pixelsPerSecond + 20))}
-        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/50"
         title="Zoom in"
+        aria-label="Zoom in"
       >
         <ZoomIn size={18} className="text-gray-500 dark:text-gray-400" />
       </button>

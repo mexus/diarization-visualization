@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useEditorStore } from '../store/editorStore';
 
 export interface UseSpeakerMergeReturn {
@@ -20,6 +20,9 @@ export function useSpeakerMerge(
   const mergeSpeakers = useEditorStore((s) => s.mergeSpeakers);
   const [isDragOver, setIsDragOver] = useState(false);
   const [pendingMerge, setPendingMerge] = useState<{ sourceId: string } | null>(null);
+
+  // Track cleanup function for touch events to ensure cleanup on unmount
+  const touchCleanupRef = useRef<(() => void) | null>(null);
 
   // HTML5 drag handlers for speaker merge (desktop)
   const handleDragStart = useCallback(
@@ -61,6 +64,12 @@ export function useSpeakerMerge(
   const handleLabelTouchStart = useCallback(
     (e: React.TouchEvent) => {
       if (isEditing) return;
+
+      // Clean up any previous touch handlers
+      if (touchCleanupRef.current) {
+        touchCleanupRef.current();
+        touchCleanupRef.current = null;
+      }
 
       // Store the source speaker ID in a data attribute on the element
       const target = e.currentTarget as HTMLElement;
@@ -136,7 +145,11 @@ export function useSpeakerMerge(
         document.removeEventListener('touchend', handleTouchEnd);
         document.removeEventListener('touchcancel', cleanup);
         delete target.dataset.touchDragSpeaker;
+        touchCleanupRef.current = null;
       };
+
+      // Store cleanup function for unmount
+      touchCleanupRef.current = cleanup;
 
       document.addEventListener('touchmove', handleTouchMove, { passive: true });
       document.addEventListener('touchend', handleTouchEnd);
@@ -144,6 +157,16 @@ export function useSpeakerMerge(
     },
     [speakerId, isEditing]
   );
+
+  // Cleanup touch event listeners on unmount
+  useEffect(() => {
+    return () => {
+      if (touchCleanupRef.current) {
+        touchCleanupRef.current();
+        touchCleanupRef.current = null;
+      }
+    };
+  }, []);
 
   // Listen for merge requests from other lanes (touch drag)
   useEffect(() => {

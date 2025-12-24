@@ -18,6 +18,7 @@ export function PlaybackSpeedControl() {
       <select
         value={playbackRate}
         onChange={(e) => handlePlaybackRateChange(Number(e.target.value))}
+        aria-label="Playback speed"
         className="custom-dropdown text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-md
           px-3 py-1.5 cursor-pointer shadow-sm
           hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700
