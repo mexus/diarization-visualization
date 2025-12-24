@@ -51,7 +51,7 @@ export function TimelineContainer() {
       ))}
       {/* Add Speaker Button */}
       <div
-        className="flex items-center border-b border-gray-200 dark:border-gray-700"
+        className="flex items-center border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
         style={{ width: `${totalWidth + labelWidth}px` }}
       >
         <div

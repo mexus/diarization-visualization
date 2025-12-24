@@ -171,7 +171,7 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
 
   return (
     <div
-      className={`flex items-center border-b border-gray-200 dark:border-gray-700 ${isEven ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/50 dark:bg-gray-800/50'}`}
+      className={`flex items-center border-b border-gray-200 dark:border-gray-700 ${isEven ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'}`}
       style={{ width: `${totalWidth + labelWidth}px` }}
       data-speaker-lane={speakerId}
     >
@@ -179,7 +179,7 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
       <div
         className={`sticky left-0 z-10 flex items-center gap-2 px-3 py-2 shrink-0 cursor-grab
           hover:bg-gray-100/80 dark:hover:bg-gray-800/80 relative group transition-colors duration-150
-          ${isEven ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/50 dark:bg-gray-800/50'}
+          ${isEven ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'}
           ${isDragOver ? 'bg-blue-100 dark:bg-blue-900/50 ring-2 ring-blue-400 ring-inset' : ''}`}
         style={{ width: `${labelWidth}px`, borderLeft: `3px solid ${color}` }}
         draggable={!isEditing}
@@ -239,7 +239,7 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
 
       {/* Segments container */}
       <div
-        className={`relative h-10 ${isRelabelTarget ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`}
+        className={`relative h-10 overflow-hidden ${isRelabelTarget ? 'bg-blue-50 dark:bg-blue-900/30' : ''}`}
         style={{ width: `${totalWidth}px` }}
         onMouseMove={handleMouseMove}
         onDoubleClick={handleDoubleClick}
