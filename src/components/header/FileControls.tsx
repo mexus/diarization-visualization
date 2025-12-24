@@ -3,7 +3,7 @@ import { Upload, FileText, Download } from 'lucide-react';
 import { useEditorStore } from '../../store/editorStore';
 import { parseRTTM, serializeRTTM } from '../../utils/rttmParser';
 import { getRTTMCoverage, checkRTTMMismatch } from '../../utils/rttmMismatch';
-import { RTTMMismatchModal } from '../RTTMMismatchModal';
+import { RTTMMismatchModal } from '../modals/RTTMMismatchModal';
 import type { Segment } from '../../types';
 import type { RTTMCoverage, MismatchInfo } from '../../utils/rttmMismatch';
 

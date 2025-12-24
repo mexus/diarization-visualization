@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import WaveSurfer from 'wavesurfer.js';
-import { useEditorStore } from '../store/editorStore';
+import { useEditorStore } from '../../store/editorStore';
 
 // Get waveform colors from CSS variables
 function getWaveformColors() {

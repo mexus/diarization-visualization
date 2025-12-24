@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SpeakerLane } from './SpeakerLane';
-import { useEditorStore } from '../store/editorStore';
-import type { Segment } from '../types';
+import { useEditorStore } from '../../store/editorStore';
+import type { Segment } from '../../types';
 
 // Mock the SegmentBlock to avoid testing its implementation details
 vi.mock('./SegmentBlock', () => ({
@@ -22,7 +22,7 @@ vi.mock('./GhostSegment', () => ({
 }));
 
 // Mock the ConfirmMergeModal
-vi.mock('./ConfirmMergeModal', () => ({
+vi.mock('../modals/ConfirmMergeModal', () => ({
   ConfirmMergeModal: ({
     isOpen,
     sourceId,

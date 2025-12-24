@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { Plus } from 'lucide-react';
-import { useEditorStore } from '../store/editorStore';
+import { useEditorStore } from '../../store/editorStore';
 import { TimeRuler } from './TimeRuler';
 import { SpeakerLane } from './SpeakerLane';
 

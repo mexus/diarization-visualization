@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, memo } from 'react';
 import { X } from 'lucide-react';
-import { useEditorStore } from '../store/editorStore';
+import { useEditorStore } from '../../store/editorStore';
 
 interface SpeakerLabelProps {
   speakerId: string;

@@ -1,5 +1,5 @@
 import { Upload, FileText, Music, MousePointer2 } from 'lucide-react';
-import { useEditorStore } from '../store/editorStore';
+import { useEditorStore } from '../../store/editorStore';
 import { useRef, useState, useCallback } from 'react';
 
 export function EmptyState() {

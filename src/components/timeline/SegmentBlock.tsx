@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import { X } from 'lucide-react';
-import type { Segment } from '../types';
-import { useEditorStore } from '../store/editorStore';
-import { getSpeakerGradient, getSpeakerShadow } from '../utils/colors';
+import type { Segment } from '../../types';
+import { useEditorStore } from '../../store/editorStore';
+import { getSpeakerGradient, getSpeakerShadow } from '../../utils/colors';
 
 interface SegmentBlockProps {
   segment: Segment;

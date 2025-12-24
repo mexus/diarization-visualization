@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { SegmentBlock } from './SegmentBlock';
-import { useEditorStore } from '../store/editorStore';
-import type { Segment } from '../types';
+import { useEditorStore } from '../../store/editorStore';
+import type { Segment } from '../../types';
 
 describe('SegmentBlock', () => {
   const mockSegment: Segment = {

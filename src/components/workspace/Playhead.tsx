@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useEditorStore } from '../store/editorStore';
+import { useEditorStore } from '../../store/editorStore';
 
 // Height constants (matching Tailwind classes used in layout components)
 const WAVEFORM_HEIGHT = 129; // 128px (min-h-[128px]) + 1px border

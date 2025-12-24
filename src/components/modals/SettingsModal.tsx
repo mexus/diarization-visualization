@@ -2,9 +2,9 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Trash2, FileAudio, Database } from 'lucide-react';
 import { Modal } from './Modal';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal';
-import { getCacheEntries, deleteEntry, clearAllStates } from '../utils/stateStorage';
-import type { CacheEntryInfo } from '../utils/stateStorage';
-import { formatRelativeTime } from '../utils/formatTime';
+import { getCacheEntries, deleteEntry, clearAllStates } from '../../utils/stateStorage';
+import type { CacheEntryInfo } from '../../utils/stateStorage';
+import { formatRelativeTime } from '../../utils/formatTime';
 
 interface SettingsModalProps {
   isOpen: boolean;

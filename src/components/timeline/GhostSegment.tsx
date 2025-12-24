@@ -1,7 +1,7 @@
 import { memo } from 'react';
-import type { Segment } from '../types';
-import { useEditorStore } from '../store/editorStore';
-import { getSpeakerColor } from '../utils/colors';
+import type { Segment } from '../../types';
+import { useEditorStore } from '../../store/editorStore';
+import { getSpeakerColor } from '../../utils/colors';
 
 interface GhostSegmentProps {
   segment: Segment;

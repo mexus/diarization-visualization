@@ -1,7 +1,7 @@
 import { AlertTriangle, FileAudio, FileText } from 'lucide-react';
 import { Modal, ModalButton } from './Modal';
-import { formatDuration } from '../utils/formatTime';
-import type { MismatchInfo } from '../utils/rttmMismatch';
+import { formatDuration } from '../../utils/formatTime';
+import type { MismatchInfo } from '../../utils/rttmMismatch';
 
 interface RTTMMismatchModalProps {
   isOpen: boolean;

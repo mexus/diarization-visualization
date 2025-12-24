@@ -1,11 +1,11 @@
 import { useState, useCallback, useMemo } from 'react';
-import { useEditorStore } from '../store/editorStore';
-import { getSpeakerColor } from '../utils/colors';
+import { useEditorStore } from '../../store/editorStore';
+import { getSpeakerColor } from '../../utils/colors';
 import { SegmentBlock } from './SegmentBlock';
 import { GhostSegment } from './GhostSegment';
 import { SpeakerLabel } from './SpeakerLabel';
-import { ConfirmMergeModal } from './ConfirmMergeModal';
-import { useSpeakerMerge } from '../hooks/useSpeakerMerge';
+import { ConfirmMergeModal } from '../modals/ConfirmMergeModal';
+import { useSpeakerMerge } from '../../hooks/useSpeakerMerge';
 
 interface SpeakerLaneProps {
   speakerId: string;

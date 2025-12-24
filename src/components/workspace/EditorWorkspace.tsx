@@ -1,12 +1,12 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { WaveformCanvas } from './WaveformCanvas';
-import { TimelineContainer } from './TimelineContainer';
+import { TimelineContainer } from '../timeline/TimelineContainer';
 import { Playhead } from './Playhead';
 import { DragGuideLine } from './DragGuideLine';
 import { EmptyState } from './EmptyState';
-import { SegmentHint } from './SegmentHint';
-import { useEditorStore } from '../store/editorStore';
-import { useDragHandlers } from '../hooks/useDragHandlers';
+import { SegmentHint } from '../timeline/SegmentHint';
+import { useEditorStore } from '../../store/editorStore';
+import { useDragHandlers } from '../../hooks/useDragHandlers';
 
 const AUTO_SCROLL_THRESHOLD = 0.9; // Scroll when playhead reaches 90% of visible area
 const AUTO_SCROLL_TARGET = 0.3; // Scroll to bring playhead to 30% from left

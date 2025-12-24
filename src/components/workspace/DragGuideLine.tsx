@@ -1,4 +1,4 @@
-import { useEditorStore } from '../store/editorStore';
+import { useEditorStore } from '../../store/editorStore';
 
 /**
  * Vertical guide line that appears during resize drag operations.

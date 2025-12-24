@@ -1,5 +1,5 @@
 import { Sun, Moon, Monitor } from 'lucide-react';
-import type { ThemeMode } from '../utils/themeStorage';
+import type { ThemeMode } from '../../utils/themeStorage';
 
 interface ThemeToggleProps {
   mode: ThemeMode;

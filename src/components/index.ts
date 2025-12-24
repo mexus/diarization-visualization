@@ -1,20 +1,29 @@
+// Header
 export { Header } from './header';
-export { ErrorBoundary } from './ErrorBoundary';
-export { EditorWorkspace } from './EditorWorkspace';
-export { WaveformCanvas } from './WaveformCanvas';
-export { TimelineContainer } from './TimelineContainer';
-export { TimeRuler } from './TimeRuler';
-export { SpeakerLane } from './SpeakerLane';
-export { SpeakerLabel } from './SpeakerLabel';
-export { SegmentBlock } from './SegmentBlock';
-export { Playhead } from './Playhead';
-export { DragGuideLine } from './DragGuideLine';
-export { GhostSegment } from './GhostSegment';
-export { ShortcutsModal } from './ShortcutsModal';
-export { ConfirmMergeModal } from './ConfirmMergeModal';
-export { ConfirmDeleteModal } from './ConfirmDeleteModal';
-export { SettingsModal } from './SettingsModal';
-export { LoadingModal } from './LoadingModal';
-export { ToastContainer } from './Toast';
-export { EmptyState } from './EmptyState';
-export { SegmentHint } from './SegmentHint';
+
+// Common
+export { ErrorBoundary } from './common';
+export { ToastContainer } from './common';
+
+// Workspace
+export { EditorWorkspace } from './workspace';
+export { WaveformCanvas } from './workspace';
+export { Playhead } from './workspace';
+export { DragGuideLine } from './workspace';
+export { EmptyState } from './workspace';
+
+// Timeline
+export { TimelineContainer } from './timeline';
+export { TimeRuler } from './timeline';
+export { SpeakerLane } from './timeline';
+export { SpeakerLabel } from './timeline';
+export { SegmentBlock } from './timeline';
+export { GhostSegment } from './timeline';
+export { SegmentHint } from './timeline';
+
+// Modals
+export { ShortcutsModal } from './modals';
+export { ConfirmMergeModal } from './modals';
+export { ConfirmDeleteModal } from './modals';
+export { SettingsModal } from './modals';
+export { LoadingModal } from './modals';

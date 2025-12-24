@@ -137,28 +137,42 @@ server {
 
 ```
 src/
-├── components/          # React components
-│   ├── Header.tsx         # File controls, undo/redo, transport, zoom, theme, settings
-│   ├── ErrorBoundary.tsx  # Graceful error handling wrapper
-│   ├── EditorWorkspace.tsx # Main layout, scroll sync
-│   ├── WaveformCanvas.tsx  # wavesurfer.js wrapper
-│   ├── TimelineContainer.tsx
-│   ├── TimeRuler.tsx       # Adaptive tick intervals
-│   ├── SpeakerLane.tsx     # Lane with segments
-│   ├── SpeakerLabel.tsx    # Speaker label with inline editing
-│   ├── SegmentBlock.tsx    # Individual segment
-│   ├── GhostSegment.tsx    # Preview during drag
-│   ├── Playhead.tsx
-│   ├── DragGuideLine.tsx
-│   ├── ShortcutsModal.tsx  # Help modal with keyboard shortcuts
-│   ├── SettingsModal.tsx   # Cache management UI
-│   ├── ConfirmMergeModal.tsx # Speaker merge confirmation
-│   ├── ConfirmDeleteModal.tsx # Delete confirmation dialog
-│   ├── RTTMMismatchModal.tsx  # RTTM duration mismatch warning
-│   ├── Toast.tsx           # Toast notifications
-│   ├── ThemeToggle.tsx     # Light/Dark/System theme switcher
-│   ├── EmptyState.tsx      # Welcome screen when no audio
-│   └── SegmentHint.tsx     # Hint overlay when no segments
+├── components/
+│   ├── common/              # Shared utility components
+│   │   ├── ErrorBoundary.tsx   # Graceful error handling wrapper
+│   │   ├── ThemeToggle.tsx     # Light/Dark/System theme switcher
+│   │   └── Toast.tsx           # Toast notifications
+│   ├── header/              # Header sub-components
+│   │   ├── Header.tsx          # Main header with all controls
+│   │   ├── FileControls.tsx    # Audio/RTTM import, export
+│   │   ├── TransportControls.tsx # Play/pause, skip buttons
+│   │   ├── TimeDisplay.tsx     # Current time / duration
+│   │   ├── PlaybackSpeedControl.tsx
+│   │   ├── ZoomControls.tsx
+│   │   ├── UndoRedoControls.tsx
+│   │   └── ToolbarActions.tsx  # Theme, settings, help buttons
+│   ├── modals/              # Modal dialogs
+│   │   ├── Modal.tsx           # Base modal component
+│   │   ├── ShortcutsModal.tsx  # Keyboard shortcuts help
+│   │   ├── SettingsModal.tsx   # Cache management UI
+│   │   ├── ConfirmMergeModal.tsx # Speaker merge confirmation
+│   │   ├── ConfirmDeleteModal.tsx
+│   │   ├── RTTMMismatchModal.tsx # Duration mismatch warning
+│   │   └── LoadingModal.tsx
+│   ├── timeline/            # Timeline/lane components
+│   │   ├── TimelineContainer.tsx
+│   │   ├── TimeRuler.tsx       # Adaptive tick intervals
+│   │   ├── SpeakerLane.tsx     # Lane with segments
+│   │   ├── SpeakerLabel.tsx    # Inline-editable speaker name
+│   │   ├── SegmentBlock.tsx    # Individual segment
+│   │   ├── GhostSegment.tsx    # Preview during drag
+│   │   └── SegmentHint.tsx     # Hint when no segments
+│   └── workspace/           # Main editor workspace
+│       ├── EditorWorkspace.tsx # Layout, scroll sync
+│       ├── WaveformCanvas.tsx  # wavesurfer.js wrapper
+│       ├── Playhead.tsx        # Current position line
+│       ├── DragGuideLine.tsx   # Guide during resize
+│       └── EmptyState.tsx      # Welcome screen
 ├── store/
 │   └── editorStore.ts   # Zustand state (single source of truth)
 ├── hooks/
@@ -177,8 +191,7 @@ src/
 │   ├── formatTime.ts    # Relative time formatting
 │   └── themeStorage.ts  # Theme preference storage
 ├── types/
-│   ├── index.ts         # TypeScript interfaces
-│   └── global.d.ts      # Global type declarations (window.__wavesurferControls)
+│   └── index.ts         # TypeScript interfaces
 ├── test/
 │   └── setup.ts         # Test setup (mocks, globals)
 ├── App.tsx              # Root component + keyboard shortcuts

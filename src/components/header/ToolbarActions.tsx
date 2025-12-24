@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { HelpCircle, Settings } from 'lucide-react';
-import { ThemeToggle } from '../ThemeToggle';
-import { ShortcutsModal } from '../ShortcutsModal';
-import { SettingsModal } from '../SettingsModal';
+import { ThemeToggle } from '../common/ThemeToggle';
+import { ShortcutsModal } from '../modals/ShortcutsModal';
+import { SettingsModal } from '../modals/SettingsModal';
 import { useEditorStore } from '../../store/editorStore';
 import type { ThemeMode } from '../../utils/themeStorage';
 

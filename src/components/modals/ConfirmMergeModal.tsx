@@ -1,5 +1,5 @@
 import { GitMerge, AlertTriangle } from 'lucide-react';
-import { getSpeakerColor } from '../utils/colors';
+import { getSpeakerColor } from '../../utils/colors';
 import { Modal, ModalButton } from './Modal';
 
 interface ConfirmMergeModalProps {

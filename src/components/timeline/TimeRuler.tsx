@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { useEditorStore } from '../store/editorStore';
-import { formatDuration } from '../utils/formatTime';
+import { useEditorStore } from '../../store/editorStore';
+import { formatDuration } from '../../utils/formatTime';
 
 interface TickConfig {
   majorInterval: number; // Seconds between labeled ticks
