@@ -187,11 +187,13 @@ src/
 │   ├── stateStorage.ts  # Versioned LRU localStorage manager
 │   ├── audioHash.ts     # SHA-256 file hashing
 │   ├── colors.ts        # Speaker color assignment
+│   ├── debounce.ts      # Debounce utility
 │   ├── firstVisit.ts    # First-visit detection for help modal
 │   ├── formatTime.ts    # Relative time formatting
 │   └── themeStorage.ts  # Theme preference storage
 ├── types/
-│   └── index.ts         # TypeScript interfaces
+│   ├── index.ts         # TypeScript interfaces
+│   └── global.d.ts      # Global type declarations
 ├── test/
 │   └── setup.ts         # Test setup (mocks, globals)
 ├── App.tsx              # Root component + keyboard shortcuts
@@ -230,9 +232,9 @@ Test suites (371 tests across 17 files) cover:
 - Drag handlers (`src/hooks/useDragHandlers.test.ts`)
 - Speaker merge logic (`src/hooks/useSpeakerMerge.test.ts`)
 - Toast notifications (`src/hooks/useToast.test.ts`)
-- Segment block component (`src/components/SegmentBlock.test.tsx`)
-- Speaker lane component (`src/components/SpeakerLane.test.tsx`)
-- Modal component (`src/components/Modal.test.tsx`)
+- Segment block component (`src/components/timeline/SegmentBlock.test.tsx`)
+- Speaker lane component (`src/components/timeline/SpeakerLane.test.tsx`)
+- Modal component (`src/components/modals/Modal.test.tsx`)
 - File controls (`src/components/header/FileControls.test.tsx`)
 - RTTM parsing/serialization (`src/utils/rttmParser.test.ts`)
 - RTTM mismatch detection (`src/utils/rttmMismatch.test.ts`)
