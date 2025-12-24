@@ -54,9 +54,7 @@ function App() {
       // Space: toggle play/pause
       if (e.code === 'Space') {
         e.preventDefault();
-        const controls = (window as unknown as Record<string, { playPause?: () => void }>)
-          .__wavesurferControls;
-        controls?.playPause?.();
+        useEditorStore.getState().audioControls?.playPause();
         return;
       }
 
@@ -79,9 +77,7 @@ function App() {
       // Arrow keys: skip back/forward
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         e.preventDefault();
-        const controls = (window as unknown as Record<string, { skip?: (s: number) => void }>)
-          .__wavesurferControls;
-        controls?.skip?.(e.key === 'ArrowLeft' ? -5 : 5);
+        useEditorStore.getState().audioControls?.skip(e.key === 'ArrowLeft' ? -5 : 5);
       }
     };
 

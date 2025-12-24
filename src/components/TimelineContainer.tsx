@@ -13,25 +13,11 @@ export function TimelineContainer() {
   const selectSegment = useEditorStore((s) => s.selectSegment);
   const addSpeaker = useEditorStore((s) => s.addSpeaker);
 
-  // Click on timeline to seek and deselect
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      // Deselect any selected segment (SegmentBlock clicks stopPropagation)
-      selectSegment(null);
-
-      const rect = e.currentTarget.getBoundingClientRect();
-      const clickX = e.clientX - rect.left - labelWidth;
-
-      if (clickX < 0) return; // Clicked on label area
-
-      const time = clickX / pixelsPerSecond;
-
-      const controls = (window as unknown as Record<string, { seekTo?: (t: number) => void }>)
-        .__wavesurferControls;
-      controls?.seekTo?.(time);
-    },
-    [pixelsPerSecond, labelWidth, selectSegment]
-  );
+  // Click on speaker lanes to deselect (SegmentBlock clicks stopPropagation)
+  // Seeking is only done via waveform clicks (handled by wavesurfer.js)
+  const handleClick = useCallback(() => {
+    selectSegment(null);
+  }, [selectSegment]);
 
   const handleAddSpeaker = useCallback(
     (e: React.MouseEvent) => {

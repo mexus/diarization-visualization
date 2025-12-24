@@ -1,4 +1,4 @@
-export { Header } from './Header';
+export { Header } from './header';
 export { EditorWorkspace } from './EditorWorkspace';
 export { WaveformCanvas } from './WaveformCanvas';
 export { TimelineContainer } from './TimelineContainer';

@@ -1,14 +1,6 @@
-interface WaveSurferControls {
-  playPause: () => void;
-  skip: (seconds: number) => void;
-  seekTo: (time: number) => void;
-  setPlaybackRate: (rate: number) => void;
-}
+// Global type declarations
 
-declare global {
-  interface Window {
-    __wavesurferControls?: WaveSurferControls;
-  }
-}
+// This file is kept for any future global type augmentations
+// WaveSurferControls has been moved to src/types/index.ts as AudioControls
 
 export {};

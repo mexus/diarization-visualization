@@ -5,6 +5,13 @@ export interface Segment {
   duration: number; // seconds
 }
 
+export interface AudioControls {
+  playPause: () => void;
+  skip: (seconds: number) => void;
+  seekTo: (time: number) => void;
+  setPlaybackRate: (rate: number) => void;
+}
+
 export interface DragState {
   type: 'resize-left' | 'resize-right' | 'relabel';
   segmentId: string;
@@ -29,6 +36,7 @@ export interface EditorState {
   duration: number;
   audioFile: File | null;
   audioHash: string | null;
+  audioControls: AudioControls | null; // WaveSurfer controls
   selectedSegmentId: string | null;
   dragState: DragState | null;
   // Undo/redo history

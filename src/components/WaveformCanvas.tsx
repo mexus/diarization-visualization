@@ -21,6 +21,7 @@ export function WaveformCanvas() {
   const setPlaying = useEditorStore((s) => s.setPlaying);
   const setCurrentTime = useEditorStore((s) => s.setCurrentTime);
   const setDuration = useEditorStore((s) => s.setDuration);
+  const setAudioControls = useEditorStore((s) => s.setAudioControls);
 
   // Update waveform colors when theme changes
   const updateColors = useCallback(() => {
@@ -71,6 +72,7 @@ export function WaveformCanvas() {
       fillParent: false,
       autoScroll: false,
       hideScrollbar: true,
+      dragToSeek: true, // Enable drag-to-seek: position updates during drag, finalizes on mouseup
     });
 
     ws.on('ready', () => {
@@ -88,8 +90,8 @@ export function WaveformCanvas() {
 
     wavesurferRef.current = ws;
 
-    // Expose controls globally for Header and other components
-    (window as unknown as Record<string, unknown>).__wavesurferControls = {
+    // Expose controls via Zustand store for Header and other components
+    setAudioControls({
       playPause: () => ws.playPause(),
       skip: (seconds: number) => {
         const current = ws.getCurrentTime();
@@ -108,7 +110,7 @@ export function WaveformCanvas() {
       setPlaybackRate: (rate: number) => {
         ws.setPlaybackRate(rate);
       },
-    };
+    });
 
     // Load the audio file
     const url = URL.createObjectURL(audioFile);
@@ -118,11 +120,11 @@ export function WaveformCanvas() {
       URL.revokeObjectURL(url);
       ws.destroy();
       wavesurferRef.current = null;
-      delete (window as unknown as Record<string, unknown>).__wavesurferControls;
+      setAudioControls(null);
     };
     // Note: pixelsPerSecond intentionally excluded - zoom handled separately
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [audioFile, setPlaying, setCurrentTime, setDuration]);
+  }, [audioFile, setPlaying, setCurrentTime, setDuration, setAudioControls]);
 
   // Update zoom level only after audio is ready
   useEffect(() => {

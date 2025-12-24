@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import type { Segment, EditorState, DragState, HistoryEntry } from '../types';
+import type { Segment, EditorState, DragState, HistoryEntry, AudioControls } from '../types';
 import { extractSpeakers } from '../utils/rttmParser';
 import { saveState } from '../utils/stateStorage';
+import { debounce } from '../utils/debounce';
 
 const MIN_SEGMENT_DURATION = 0.1; // seconds
 const MAX_HISTORY = 50; // Maximum undo/redo steps
@@ -16,6 +17,7 @@ interface EditorActions {
   setDuration: (duration: number) => void;
   setAudioFile: (file: File | null) => void;
   setAudioHash: (hash: string | null) => void;
+  setAudioControls: (controls: AudioControls | null) => void;
   setLoading: (message: string | null) => void;
   renameSpeaker: (oldId: string, newId: string) => void;
   reset: () => void;
@@ -57,6 +59,7 @@ const initialState: EditorState = {
   duration: 0,
   audioFile: null,
   audioHash: null,
+  audioControls: null,
   selectedSegmentId: null,
   dragState: null,
   history: [],
@@ -141,6 +144,8 @@ export const useEditorStore = create<EditorState & EditorActions>()(
   setAudioFile: (audioFile) => set({ audioFile }),
 
   setAudioHash: (audioHash) => set({ audioHash }),
+
+  setAudioControls: (audioControls) => set({ audioControls }),
 
   setLoading: (loadingMessage) => set({ loadingMessage }),
 
@@ -458,7 +463,10 @@ export const useEditorStore = create<EditorState & EditorActions>()(
     })),
 })));
 
-// Auto-save state when it changes (debounced via subscription)
+// Debounced save to prevent excessive localStorage writes during rapid edits
+const debouncedSave = debounce(saveState, 500);
+
+// Auto-save state when it changes
 useEditorStore.subscribe(
   (state) => ({
     segments: state.segments,
@@ -470,7 +478,7 @@ useEditorStore.subscribe(
   }),
   ({ segments, manualSpeakers, history, future, audioHash, audioFileName }) => {
     if (audioHash && (segments.length > 0 || manualSpeakers.length > 0)) {
-      saveState(audioHash, segments, manualSpeakers, history, future, audioFileName);
+      debouncedSave(audioHash, segments, manualSpeakers, history, future, audioFileName);
     }
   },
   {
