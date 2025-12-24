@@ -39,21 +39,22 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
   const [showHelp, setShowHelp] = useState(helpDefaultOpen);
   const [showSettings, setShowSettings] = useState(false);
 
-  const {
-    segments,
-    isPlaying,
-    currentTime,
-    duration,
-    pixelsPerSecond,
-    audioHash,
-    history,
-    future,
-    setAudioFile,
-    setSegments,
-    setZoom,
-    undo,
-    redo,
-  } = useEditorStore();
+  // State selectors (each creates minimal subscription)
+  const segments = useEditorStore((s) => s.segments);
+  const isPlaying = useEditorStore((s) => s.isPlaying);
+  const currentTime = useEditorStore((s) => s.currentTime);
+  const duration = useEditorStore((s) => s.duration);
+  const pixelsPerSecond = useEditorStore((s) => s.pixelsPerSecond);
+  const audioHash = useEditorStore((s) => s.audioHash);
+  const history = useEditorStore((s) => s.history);
+  const future = useEditorStore((s) => s.future);
+
+  // Action selectors (stable references, don't cause re-renders)
+  const setAudioFile = useEditorStore((s) => s.setAudioFile);
+  const setSegments = useEditorStore((s) => s.setSegments);
+  const setZoom = useEditorStore((s) => s.setZoom);
+  const undo = useEditorStore((s) => s.undo);
+  const redo = useEditorStore((s) => s.redo);
 
   const handleAudioImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

@@ -202,6 +202,9 @@ Test suites cover:
 - RTTM parsing/serialization (`src/utils/rttmParser.test.ts`)
 - Zustand store actions (`src/store/editorStore.test.ts`)
 - State persistence (`src/utils/stateStorage.test.ts`)
+- Speaker colors (`src/utils/colors.test.ts`)
+- Time formatting (`src/utils/formatTime.test.ts`)
+- First-visit detection (`src/utils/firstVisit.test.ts`)
 
 Tests run automatically in CI before deployment.
 

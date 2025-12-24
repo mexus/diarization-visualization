@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { X } from 'lucide-react';
 import { useEditorStore } from '../store/editorStore';
 import { getSpeakerColor } from '../utils/colors';
@@ -41,9 +41,12 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
     handleCancelMerge,
   } = useSpeakerMerge(speakerId, isEditing);
 
-  const laneSegments = segments.filter((s) => s.speakerId === speakerId);
+  const laneSegments = useMemo(
+    () => segments.filter((s) => s.speakerId === speakerId),
+    [segments, speakerId]
+  );
   const hasSegments = laneSegments.length > 0;
-  const color = getSpeakerColor(speakerId);
+  const color = useMemo(() => getSpeakerColor(speakerId), [speakerId]);
   const totalWidth = duration * pixelsPerSecond;
   const isEven = index % 2 === 0;
 
@@ -159,9 +162,12 @@ export function SpeakerLane({ speakerId, index }: SpeakerLaneProps) {
   );
 
   // Get source segment count for modal
-  const sourceSegmentCount = pendingMerge
-    ? segments.filter((s) => s.speakerId === pendingMerge.sourceId).length
-    : 0;
+  const sourceSegmentCount = useMemo(
+    () => pendingMerge
+      ? segments.filter((s) => s.speakerId === pendingMerge.sourceId).length
+      : 0,
+    [segments, pendingMerge]
+  );
 
   return (
     <div
