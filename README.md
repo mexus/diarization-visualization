@@ -47,6 +47,15 @@ A shortcuts reference modal is available via the **?** button in the header. On 
 
 Your edits are automatically saved in the browser. When you reload the same audio file, your previous segments, speakers, and undo history are restored. The editor remembers the last 10 audio files.
 
+### Cache Management
+
+Click the **gear icon** in the header to open Settings and manage cached audio data:
+- View all cached audio files with segment counts and last edit time
+- Delete individual cache entries
+- Clear all cached data
+
+The current audio file is highlighted with a "Current" badge.
+
 ### Theme
 
 The editor supports Light, Dark, and System (follows OS preference) themes. Your preference is saved in the browser.
@@ -118,7 +127,7 @@ server {
 ```
 src/
 ├── components/          # React components
-│   ├── Header.tsx         # File controls, undo/redo, transport, zoom, theme
+│   ├── Header.tsx         # File controls, undo/redo, transport, zoom, theme, settings
 │   ├── EditorWorkspace.tsx # Main layout, scroll sync
 │   ├── WaveformCanvas.tsx  # wavesurfer.js wrapper
 │   ├── TimelineContainer.tsx
@@ -129,7 +138,10 @@ src/
 │   ├── Playhead.tsx
 │   ├── DragGuideLine.tsx
 │   ├── ShortcutsModal.tsx  # Help modal with keyboard shortcuts
+│   ├── SettingsModal.tsx   # Cache management UI
 │   ├── ConfirmMergeModal.tsx # Speaker merge confirmation
+│   ├── ConfirmDeleteModal.tsx # Delete confirmation dialog
+│   ├── Toast.tsx           # Toast notifications
 │   ├── ThemeToggle.tsx     # Light/Dark/System theme switcher
 │   ├── EmptyState.tsx      # Welcome screen when no audio
 │   └── SegmentHint.tsx     # Hint overlay when no segments
@@ -138,13 +150,15 @@ src/
 ├── hooks/
 │   ├── useDragHandlers.ts    # Document-level drag events
 │   ├── useStatePersistence.ts # localStorage save/restore
-│   └── useTheme.ts           # Theme management + system detection
+│   ├── useTheme.ts           # Theme management + system detection
+│   └── useToast.ts           # Toast notification state
 ├── utils/
 │   ├── rttmParser.ts    # RTTM parse/serialize
-│   ├── stateStorage.ts  # LRU localStorage manager
+│   ├── stateStorage.ts  # Versioned LRU localStorage manager
 │   ├── audioHash.ts     # SHA-256 file hashing
 │   ├── colors.ts        # Speaker color assignment
 │   ├── firstVisit.ts    # First-visit detection for help modal
+│   ├── formatTime.ts    # Relative time formatting
 │   └── themeStorage.ts  # Theme preference storage
 ├── types/
 │   └── index.ts         # TypeScript interfaces

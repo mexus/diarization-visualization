@@ -10,10 +10,12 @@ import {
   ZoomIn,
   ZoomOut,
   HelpCircle,
+  Settings,
   Undo2,
   Redo2,
 } from 'lucide-react';
 import { ShortcutsModal } from './ShortcutsModal';
+import { SettingsModal } from './SettingsModal';
 import { ThemeToggle } from './ThemeToggle';
 import { useEditorStore } from '../store/editorStore';
 import { parseRTTM, serializeRTTM } from '../utils/rttmParser';
@@ -38,12 +40,14 @@ interface HeaderProps {
   helpDefaultOpen?: boolean;
   themeMode: ThemeMode;
   onThemeModeChange: (mode: ThemeMode) => void;
+  onToast: (type: 'success' | 'warning', message: string) => void;
 }
 
-export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange }: HeaderProps) {
+export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, onToast }: HeaderProps) {
   const audioInputRef = useRef<HTMLInputElement>(null);
   const rttmInputRef = useRef<HTMLInputElement>(null);
   const [showHelp, setShowHelp] = useState(helpDefaultOpen);
+  const [showSettings, setShowSettings] = useState(false);
 
   const {
     segments,
@@ -51,6 +55,7 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange }
     currentTime,
     duration,
     pixelsPerSecond,
+    audioHash,
     history,
     future,
     setAudioFile,
@@ -300,10 +305,19 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange }
         {/* Theme Toggle */}
         <ThemeToggle mode={themeMode} onModeChange={onThemeModeChange} />
 
+        {/* Settings Button */}
+        <button
+          onClick={() => setShowSettings(true)}
+          className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ml-2"
+          title="Settings"
+        >
+          <Settings size={20} className="text-gray-500 dark:text-gray-400" />
+        </button>
+
         {/* Help Button */}
         <button
           onClick={() => setShowHelp(true)}
-          className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ml-2"
+          className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           title="Keyboard shortcuts"
         >
           <HelpCircle size={20} className="text-gray-500 dark:text-gray-400" />
@@ -312,6 +326,14 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange }
 
       {/* Shortcuts Modal */}
       <ShortcutsModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        currentAudioHash={audioHash}
+        onToast={onToast}
+      />
     </header>
   );
 }

@@ -10,5 +10,8 @@ export { DragGuideLine } from './DragGuideLine';
 export { GhostSegment } from './GhostSegment';
 export { ShortcutsModal } from './ShortcutsModal';
 export { ConfirmMergeModal } from './ConfirmMergeModal';
+export { ConfirmDeleteModal } from './ConfirmDeleteModal';
+export { SettingsModal } from './SettingsModal';
+export { ToastContainer } from './Toast';
 export { EmptyState } from './EmptyState';
 export { SegmentHint } from './SegmentHint';

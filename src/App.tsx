@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Header, EditorWorkspace } from './components';
+import { Header, EditorWorkspace, ToastContainer } from './components';
 import { useEditorStore } from './store/editorStore';
 import { useStatePersistence } from './hooks/useStatePersistence';
 import { useTheme } from './hooks/useTheme';
+import { useToast } from './hooks/useToast';
 import { isFirstVisit, markVisited } from './utils/firstVisit';
 import './index.css';
 
@@ -12,6 +13,9 @@ function App() {
 
   // Theme management
   const { mode: themeMode, setTheme } = useTheme();
+
+  // Toast notifications
+  const { toasts, showToast, dismissToast } = useToast();
 
   // Check first visit once and mark as visited
   const [showHelpOnStart] = useState(() => {
@@ -84,8 +88,14 @@ function App() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
-      <Header helpDefaultOpen={showHelpOnStart} themeMode={themeMode} onThemeModeChange={setTheme} />
+      <Header
+        helpDefaultOpen={showHelpOnStart}
+        themeMode={themeMode}
+        onThemeModeChange={setTheme}
+        onToast={showToast}
+      />
       <EditorWorkspace />
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   );
 }

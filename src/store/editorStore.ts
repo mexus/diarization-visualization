@@ -463,10 +463,11 @@ useEditorStore.subscribe(
     history: state.history,
     future: state.future,
     audioHash: state.audioHash,
+    audioFileName: state.audioFile?.name,
   }),
-  ({ segments, manualSpeakers, history, future, audioHash }) => {
+  ({ segments, manualSpeakers, history, future, audioHash, audioFileName }) => {
     if (audioHash && (segments.length > 0 || manualSpeakers.length > 0)) {
-      saveState(audioHash, segments, manualSpeakers, history, future);
+      saveState(audioHash, segments, manualSpeakers, history, future, audioFileName);
     }
   },
   {
@@ -475,6 +476,7 @@ useEditorStore.subscribe(
       a.manualSpeakers === b.manualSpeakers &&
       a.history === b.history &&
       a.future === b.future &&
-      a.audioHash === b.audioHash,
+      a.audioHash === b.audioHash &&
+      a.audioFileName === b.audioFileName,
   }
 );
