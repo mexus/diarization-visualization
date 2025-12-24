@@ -78,7 +78,7 @@ export function TimeRuler() {
         {majorTicks.map((time) => (
           <div
             key={`major-${time}`}
-            className="absolute top-0 flex flex-col items-center"
+            className="absolute top-0 flex flex-col"
             style={{ left: `${time * pixelsPerSecond}px` }}
           >
             <div className="w-px h-2.5 bg-gray-400 dark:bg-gray-500" />
