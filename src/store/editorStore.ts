@@ -197,63 +197,62 @@ export const useEditorStore = create<EditorState & EditorActions>()(
   // Merge all segments from source speaker into target speaker
   // Overlapping segments are combined into single segments spanning their union
   mergeSpeakers: (sourceId, targetId) => {
-    const state = useEditorStore.getState();
     if (sourceId === targetId) return false;
 
-    const sourceSegments = state.segments.filter((s) => s.speakerId === sourceId);
-    const targetSegments = state.segments.filter((s) => s.speakerId === targetId);
-    const otherSegments = state.segments.filter(
-      (s) => s.speakerId !== sourceId && s.speakerId !== targetId
-    );
+    let success = false;
 
-    // If source has no segments, just remove it from manualSpeakers
-    if (sourceSegments.length === 0) {
-      set((state) => {
+    set((state) => {
+      const sourceSegments = state.segments.filter((s) => s.speakerId === sourceId);
+      const targetSegments = state.segments.filter((s) => s.speakerId === targetId);
+      const otherSegments = state.segments.filter(
+        (s) => s.speakerId !== sourceId && s.speakerId !== targetId
+      );
+
+      // If source has no segments, just remove it from manualSpeakers
+      if (sourceSegments.length === 0) {
         const newManualSpeakers = state.manualSpeakers.filter((id) => id !== sourceId);
+        success = true;
         return {
           ...pushHistory(state),
           manualSpeakers: newManualSpeakers,
           speakers: computeSpeakers(state.segments, newManualSpeakers),
         };
-      });
-      return true;
-    }
-
-    // Combine source and target segments, then merge overlapping intervals
-    const allSegments = [...sourceSegments, ...targetSegments];
-
-    // Sort by start time
-    allSegments.sort((a, b) => a.startTime - b.startTime);
-
-    // Merge overlapping intervals
-    const mergedSegments: Segment[] = [];
-    for (const seg of allSegments) {
-      const last = mergedSegments[mergedSegments.length - 1];
-      const segEnd = seg.startTime + seg.duration;
-
-      if (last && seg.startTime <= last.startTime + last.duration) {
-        // Overlapping or adjacent - extend the last segment
-        const lastEnd = last.startTime + last.duration;
-        const newEnd = Math.max(lastEnd, segEnd);
-        last.duration = newEnd - last.startTime;
-      } else {
-        // No overlap - add new segment with target speaker ID
-        mergedSegments.push({
-          id: crypto.randomUUID(),
-          speakerId: targetId,
-          startTime: seg.startTime,
-          duration: seg.duration,
-        });
       }
-    }
 
-    // Perform the merge
-    set((state) => {
+      // Combine source and target segments, then merge overlapping intervals
+      const allSegments = [...sourceSegments, ...targetSegments];
+
+      // Sort by start time
+      allSegments.sort((a, b) => a.startTime - b.startTime);
+
+      // Merge overlapping intervals
+      const mergedSegments: Segment[] = [];
+      for (const seg of allSegments) {
+        const last = mergedSegments[mergedSegments.length - 1];
+        const segEnd = seg.startTime + seg.duration;
+
+        if (last && seg.startTime <= last.startTime + last.duration) {
+          // Overlapping or adjacent - extend the last segment
+          const lastEnd = last.startTime + last.duration;
+          const newEnd = Math.max(lastEnd, segEnd);
+          last.duration = newEnd - last.startTime;
+        } else {
+          // No overlap - add new segment with target speaker ID
+          mergedSegments.push({
+            id: crypto.randomUUID(),
+            speakerId: targetId,
+            startTime: seg.startTime,
+            duration: seg.duration,
+          });
+        }
+      }
+
       const updatedSegments = [...otherSegments, ...mergedSegments];
 
       // Remove source from manualSpeakers if present
       const newManualSpeakers = state.manualSpeakers.filter((id) => id !== sourceId);
 
+      success = true;
       return {
         ...pushHistory(state),
         segments: updatedSegments,
@@ -263,7 +262,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       };
     });
 
-    return true;
+    return success;
   },
 
   // Selection

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 export type ToastType = 'info' | 'success' | 'warning' | 'error';
 
@@ -19,6 +19,14 @@ const DEFAULT_DURATION = 3000;
 export function useToast(): UseToastReturn {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const timeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+
+  // Cleanup all timeouts on unmount
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach((timeout) => clearTimeout(timeout));
+      timeoutsRef.current.clear();
+    };
+  }, []);
 
   const dismissToast = useCallback((id: string) => {
     // Clear timeout if exists

@@ -1,10 +1,6 @@
+import { useMemo } from 'react';
 import { useEditorStore } from '../store/editorStore';
-
-function formatTime(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
+import { formatDuration } from '../utils/formatTime';
 
 interface TickConfig {
   majorInterval: number; // Seconds between labeled ticks
@@ -33,20 +29,23 @@ export function TimeRuler() {
   const totalWidth = duration * pixelsPerSecond;
   const { majorInterval, minorInterval } = getTickConfig(pixelsPerSecond);
 
-  // Generate minor ticks (subdivisions)
-  const minorTicks: number[] = [];
-  for (let t = 0; t <= duration; t += minorInterval) {
-    // Skip if this is a major tick position
-    if (t % majorInterval !== 0) {
-      minorTicks.push(t);
-    }
-  }
+  // Memoize tick calculations to avoid recalculating on every render
+  const { minorTicks, majorTicks } = useMemo(() => {
+    const minor: number[] = [];
+    const major: number[] = [];
 
-  // Generate major ticks (labeled)
-  const majorTicks: number[] = [];
-  for (let t = 0; t <= duration; t += majorInterval) {
-    majorTicks.push(t);
-  }
+    for (let t = 0; t <= duration; t += minorInterval) {
+      if (t % majorInterval !== 0) {
+        minor.push(t);
+      }
+    }
+
+    for (let t = 0; t <= duration; t += majorInterval) {
+      major.push(t);
+    }
+
+    return { minorTicks: minor, majorTicks: major };
+  }, [duration, minorInterval, majorInterval]);
 
   return (
     <div
@@ -84,7 +83,7 @@ export function TimeRuler() {
           >
             <div className="w-px h-2.5 bg-gray-400 dark:bg-gray-500" />
             <span className="text-xs text-gray-500 dark:text-gray-400 -translate-x-1/2">
-              {formatTime(time)}
+              {formatDuration(time)}
             </span>
           </div>
         ))}

@@ -19,18 +19,8 @@ import { SettingsModal } from './SettingsModal';
 import { ThemeToggle } from './ThemeToggle';
 import { useEditorStore } from '../store/editorStore';
 import { parseRTTM, serializeRTTM } from '../utils/rttmParser';
+import { formatDuration } from '../utils/formatTime';
 import type { ThemeMode } from '../utils/themeStorage';
-
-function formatTime(seconds: number, includeMs = false): string {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  const base = `${mins}:${secs.toString().padStart(2, '0')}`;
-  if (includeMs) {
-    const ms = Math.floor((seconds % 1) * 1000);
-    return `${base}.${ms.toString().padStart(3, '0')}`;
-  }
-  return base;
-}
 
 function Separator() {
   return <div className="hidden sm:block w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />;
@@ -40,7 +30,7 @@ interface HeaderProps {
   helpDefaultOpen?: boolean;
   themeMode: ThemeMode;
   onThemeModeChange: (mode: ThemeMode) => void;
-  onToast: (type: 'success' | 'warning', message: string) => void;
+  onToast: (type: 'success' | 'warning' | 'error', message: string) => void;
 }
 
 export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, onToast }: HeaderProps) {
@@ -75,10 +65,22 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
   const handleRTTMImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const text = await file.text();
-      const segments = parseRTTM(text);
-      setSegments(segments);
+      try {
+        const text = await file.text();
+        const segments = parseRTTM(text);
+        if (segments.length === 0) {
+          onToast('warning', 'No valid segments found in RTTM file');
+        } else {
+          setSegments(segments);
+          onToast('success', `Loaded ${segments.length} segments`);
+        }
+      } catch (error) {
+        onToast('error', 'Failed to read RTTM file');
+        console.error('RTTM import error:', error);
+      }
     }
+    // Reset input to allow re-selecting same file
+    e.target.value = '';
   };
 
   const handleRTTMExport = () => {
@@ -101,24 +103,18 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
   };
 
   const handlePlayPause = () => {
-    const controls = (window as unknown as Record<string, { playPause?: () => void }>)
-      .__wavesurferControls;
-    controls?.playPause?.();
+    window.__wavesurferControls?.playPause?.();
   };
 
   const handleSkip = (seconds: number) => {
-    const controls = (window as unknown as Record<string, { skip?: (s: number) => void }>)
-      .__wavesurferControls;
-    controls?.skip?.(seconds);
+    window.__wavesurferControls?.skip?.(seconds);
   };
 
   const [playbackRate, setPlaybackRate] = useState(1);
 
   const handlePlaybackRateChange = (rate: number) => {
     setPlaybackRate(rate);
-    const controls = (window as unknown as Record<string, { setPlaybackRate?: (r: number) => void }>)
-      .__wavesurferControls;
-    controls?.setPlaybackRate?.(rate);
+    window.__wavesurferControls?.setPlaybackRate?.(rate);
   };
 
   const playbackRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
@@ -144,6 +140,7 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
               hover:bg-blue-600 active:bg-blue-700 transition-colors shadow-sm
               focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-1"
             title="Import Audio"
+            aria-label="Import audio file"
           >
             <Upload size={16} />
             <span className="hidden sm:inline">Audio</span>
@@ -162,6 +159,7 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
               hover:bg-gray-200 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-600 transition-colors
               focus:outline-none focus:ring-2 focus:ring-gray-400/50 focus:ring-offset-1 dark:focus:ring-offset-gray-900"
             title="Import RTTM"
+            aria-label="Import RTTM diarization file"
           >
             <FileText size={16} />
             <span className="hidden sm:inline">RTTM</span>
@@ -175,6 +173,7 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
               disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none
               focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:ring-offset-1"
             title="Export RTTM"
+            aria-label="Export RTTM diarization file"
           >
             <Download size={16} />
             <span className="hidden sm:inline">Export</span>
@@ -191,6 +190,7 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
             className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors
               disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
             title="Undo (Ctrl+Z)"
+            aria-label="Undo last action"
           >
             <Undo2 size={18} className="text-gray-600 dark:text-gray-400" />
           </button>
@@ -200,6 +200,7 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
             className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors
               disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
             title="Redo (Ctrl+Shift+Z)"
+            aria-label="Redo last undone action"
           >
             <Redo2 size={18} className="text-gray-600 dark:text-gray-400" />
           </button>
@@ -213,6 +214,7 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
             onClick={() => handleSkip(-5)}
             className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             title="Skip back 5s"
+            aria-label="Skip back 5 seconds"
           >
             <SkipBack size={20} className="text-gray-600 dark:text-gray-400" />
           </button>
@@ -222,6 +224,7 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
             className="p-2 rounded-full bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-300 active:bg-gray-800 dark:active:bg-gray-200 transition-colors shadow-sm
               focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
             title={isPlaying ? 'Pause' : 'Play'}
+            aria-label={isPlaying ? 'Pause audio' : 'Play audio'}
           >
             {isPlaying ? <Pause size={20} /> : <Play size={20} />}
           </button>
@@ -230,6 +233,7 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
             onClick={() => handleSkip(5)}
             className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             title="Skip forward 5s"
+            aria-label="Skip forward 5 seconds"
           >
             <SkipForward size={20} className="text-gray-600 dark:text-gray-400" />
           </button>
@@ -239,8 +243,8 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
 
         {/* Time Display - compact on mobile */}
         <div className="text-xs sm:text-sm font-mono text-gray-600 dark:text-gray-300 tabular-nums">
-          <span className="hidden sm:inline">{formatTime(currentTime, true)} / {formatTime(duration)}</span>
-          <span className="sm:hidden">{formatTime(currentTime)}</span>
+          <span className="hidden sm:inline">{formatDuration(currentTime, true)} / {formatDuration(duration)}</span>
+          <span className="sm:hidden">{formatDuration(currentTime)}</span>
         </div>
 
         <Separator />

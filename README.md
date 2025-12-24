@@ -99,6 +99,9 @@ Open http://localhost:5173
 | `npm run build` | TypeScript check + production build to `dist/` |
 | `npm run preview` | Serve production build locally (port 4173) |
 | `npm run lint` | Run ESLint |
+| `npm run test` | Run tests in watch mode |
+| `npm run test:run` | Run tests once (used in CI) |
+| `npm run test:coverage` | Run tests with coverage report |
 
 ### Production Build
 
@@ -149,6 +152,7 @@ src/
 │   └── editorStore.ts   # Zustand state (single source of truth)
 ├── hooks/
 │   ├── useDragHandlers.ts    # Document-level drag events
+│   ├── useSpeakerMerge.ts    # Speaker merge drag-and-drop logic
 │   ├── useStatePersistence.ts # localStorage save/restore
 │   ├── useTheme.ts           # Theme management + system detection
 │   └── useToast.ts           # Toast notification state
@@ -161,7 +165,10 @@ src/
 │   ├── formatTime.ts    # Relative time formatting
 │   └── themeStorage.ts  # Theme preference storage
 ├── types/
-│   └── index.ts         # TypeScript interfaces
+│   ├── index.ts         # TypeScript interfaces
+│   └── global.d.ts      # Global type declarations (window.__wavesurferControls)
+├── test/
+│   └── setup.ts         # Test setup (mocks, globals)
 ├── App.tsx              # Root component + keyboard shortcuts
 ├── main.tsx             # Entry point
 └── index.css            # Tailwind + dark mode CSS variables
@@ -181,6 +188,23 @@ src/
 
 **Dark theme**: Class-based dark mode via Tailwind's `dark:` variant. Theme preference stored in localStorage. WaveformCanvas updates wavesurfer.js colors via MutationObserver when `.dark` class changes on `<html>`.
 
+### Testing
+
+The project uses Vitest with React Testing Library. Tests are located alongside source files with `.test.ts` or `.test.tsx` extensions.
+
+```bash
+npm run test          # Watch mode for development
+npm run test:run      # Single run (CI)
+npm run test:coverage # Coverage report
+```
+
+Test suites cover:
+- RTTM parsing/serialization (`src/utils/rttmParser.test.ts`)
+- Zustand store actions (`src/store/editorStore.test.ts`)
+- State persistence (`src/utils/stateStorage.test.ts`)
+
+Tests run automatically in CI before deployment.
+
 ### Dependencies
 
 | Package | Purpose |
@@ -192,6 +216,8 @@ src/
 | `lucide-react` | Icons |
 | `vite` | Build tool |
 | `typescript` | Type safety |
+| `vitest` | Testing framework |
+| `@testing-library/react` | React component testing utilities |
 
 ### Browser Support
 

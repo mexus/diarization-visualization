@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { X } from 'lucide-react';
 import type { Segment } from '../types';
 import { useEditorStore } from '../store/editorStore';
@@ -7,7 +8,7 @@ interface SegmentBlockProps {
   segment: Segment;
 }
 
-export function SegmentBlock({ segment }: SegmentBlockProps) {
+export const SegmentBlock = memo(function SegmentBlock({ segment }: SegmentBlockProps) {
   const pixelsPerSecond = useEditorStore((s) => s.pixelsPerSecond);
   const selectedSegmentId = useEditorStore((s) => s.selectedSegmentId);
   const dragState = useEditorStore((s) => s.dragState);
@@ -119,6 +120,7 @@ export function SegmentBlock({ segment }: SegmentBlockProps) {
             className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 z-30 shadow-sm"
             onClick={handleDelete}
             title="Delete segment"
+            aria-label={`Delete segment from ${segment.speakerId}`}
           >
             <X size={12} />
           </button>
@@ -126,4 +128,4 @@ export function SegmentBlock({ segment }: SegmentBlockProps) {
       )}
     </div>
   );
-}
+});

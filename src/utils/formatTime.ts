@@ -1,4 +1,18 @@
 /**
+ * Format a duration in seconds as MM:SS or MM:SS.mmm format.
+ */
+export function formatDuration(seconds: number, includeMs = false): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  const base = `${mins}:${secs.toString().padStart(2, '0')}`;
+  if (includeMs) {
+    const ms = Math.floor((seconds % 1) * 1000);
+    return `${base}.${ms.toString().padStart(3, '0')}`;
+  }
+  return base;
+}
+
+/**
  * Format a timestamp as a relative time string.
  */
 export function formatRelativeTime(timestamp: number): string {
