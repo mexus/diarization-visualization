@@ -34,4 +34,6 @@ export interface EditorState {
   // Undo/redo history
   history: HistoryEntry[];
   future: HistoryEntry[];
+  // Loading state: null = not loading, string = loading message
+  loadingMessage: string | null;
 }

@@ -12,6 +12,7 @@ export { ShortcutsModal } from './ShortcutsModal';
 export { ConfirmMergeModal } from './ConfirmMergeModal';
 export { ConfirmDeleteModal } from './ConfirmDeleteModal';
 export { SettingsModal } from './SettingsModal';
+export { LoadingModal } from './LoadingModal';
 export { ToastContainer } from './Toast';
 export { EmptyState } from './EmptyState';
 export { SegmentHint } from './SegmentHint';

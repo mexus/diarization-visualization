@@ -53,6 +53,7 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
   const setAudioFile = useEditorStore((s) => s.setAudioFile);
   const setSegments = useEditorStore((s) => s.setSegments);
   const setZoom = useEditorStore((s) => s.setZoom);
+  const setLoading = useEditorStore((s) => s.setLoading);
   const undo = useEditorStore((s) => s.undo);
   const redo = useEditorStore((s) => s.redo);
 
@@ -67,6 +68,7 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
     const file = e.target.files?.[0];
     if (file) {
       try {
+        setLoading('Loading RTTM file...');
         const text = await file.text();
         const segments = parseRTTM(text);
         if (segments.length === 0) {
@@ -78,6 +80,8 @@ export function Header({ helpDefaultOpen = false, themeMode, onThemeModeChange, 
       } catch (error) {
         onToast('error', 'Failed to read RTTM file');
         console.error('RTTM import error:', error);
+      } finally {
+        setLoading(null);
       }
     }
     // Reset input to allow re-selecting same file

@@ -16,6 +16,7 @@ interface EditorActions {
   setDuration: (duration: number) => void;
   setAudioFile: (file: File | null) => void;
   setAudioHash: (hash: string | null) => void;
+  setLoading: (message: string | null) => void;
   renameSpeaker: (oldId: string, newId: string) => void;
   reset: () => void;
   // Speaker management
@@ -60,6 +61,7 @@ const initialState: EditorState = {
   dragState: null,
   history: [],
   future: [],
+  loadingMessage: null,
 };
 
 // Helper to create a history entry from current state
@@ -139,6 +141,8 @@ export const useEditorStore = create<EditorState & EditorActions>()(
   setAudioFile: (audioFile) => set({ audioFile }),
 
   setAudioHash: (audioHash) => set({ audioHash }),
+
+  setLoading: (loadingMessage) => set({ loadingMessage }),
 
   renameSpeaker: (oldId, newId) =>
     set((state) => {

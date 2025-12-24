@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Header, EditorWorkspace, ToastContainer } from './components';
+import { Header, EditorWorkspace, ToastContainer, LoadingModal } from './components';
 import { useEditorStore } from './store/editorStore';
 import { useStatePersistence } from './hooks/useStatePersistence';
 import { useTheme } from './hooks/useTheme';
@@ -16,6 +16,9 @@ function App() {
 
   // Toast notifications
   const { toasts, showToast, dismissToast } = useToast();
+
+  // Loading state
+  const loadingMessage = useEditorStore((s) => s.loadingMessage);
 
   // Check first visit once and mark as visited
   const [showHelpOnStart] = useState(() => {
@@ -96,6 +99,7 @@ function App() {
       />
       <EditorWorkspace />
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+      <LoadingModal message={loadingMessage} />
     </div>
   );
 }
